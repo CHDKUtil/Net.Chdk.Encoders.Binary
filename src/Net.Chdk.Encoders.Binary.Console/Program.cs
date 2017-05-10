@@ -44,7 +44,7 @@ namespace Net.Chdk.Encoders.Binary
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                BinaryEncoder.Decode(inStream, outStream, version);
+                BinaryDecoder.Decode(inStream, outStream, version);
             }
         }
 
