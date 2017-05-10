@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using static Net.Chdk.Encoders.Binary.Utility;
 
@@ -11,12 +10,7 @@ namespace Net.Chdk.Encoders.Binary
 
         public static bool Decode(Stream inStream, Stream outStream, int version)
         {
-            if (inStream == null)
-                throw new ArgumentNullException(nameof(inStream));
-            if (outStream == null)
-                throw new ArgumentNullException(nameof(outStream));
-            if (version < 0 || version > MaxVersion)
-                throw new ArgumentOutOfRangeException(nameof(version));
+            Validate(inStream: inStream, outStream: outStream, version: version);
 
             if (version == 0)
             {
@@ -27,22 +21,22 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(inStream, outStream, Offsets[version - 1]);
         }
 
-        private static bool Decode(Stream inStream, Stream outStream, int[] offsets)
+        private static bool Decode(Stream encStream, Stream decStream, int[] offsets)
         {
-            var inBuffer = new byte[ChunkSize];
-            var outBuffer = new byte[ChunkSize];
+            var encBuffer = new byte[ChunkSize];
+            var decBuffer = new byte[ChunkSize];
 
             var length = Prefix.Length;
-            var size = inStream.Read(inBuffer, 0, length);
-            if (size < length || Enumerable.Range(0, length).Any(i => inBuffer[i] != Prefix[i]))
+            var size = encStream.Read(encBuffer, 0, length);
+            if (size < length || Enumerable.Range(0, length).Any(i => encBuffer[i] != Prefix[i]))
                 return false;
 
-            while ((size = inStream.Read(inBuffer, 0, ChunkSize)) > 0)
+            while ((size = encStream.Read(encBuffer, 0, ChunkSize)) > 0)
             {
                 for (var start = 0; start < size; start += offsets.Length)
                     for (var index = 0; index < offsets.Length; index++)
-                        outBuffer[start + index] = Dance(inBuffer[start + offsets[index]], start + index);
-                outStream.Write(outBuffer, 0, size);
+                        decBuffer[start + index] = Dance(encBuffer[start + offsets[index]], start + index);
+                decStream.Write(decBuffer, 0, size);
             }
 
             return true;

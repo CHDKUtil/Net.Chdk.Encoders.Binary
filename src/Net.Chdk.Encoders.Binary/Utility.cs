@@ -1,4 +1,7 @@
-﻿namespace Net.Chdk.Encoders.Binary
+﻿using System;
+using System.IO;
+
+namespace Net.Chdk.Encoders.Binary
 {
     internal class Utility
     {
@@ -26,6 +29,16 @@
 		};
 
         public static int MaxVersion => Offsets.Length;
+
+        public static void Validate(Stream inStream, Stream outStream, int version)
+        {
+            if (inStream == null)
+                throw new ArgumentNullException(nameof(inStream));
+            if (outStream == null)
+                throw new ArgumentNullException(nameof(outStream));
+            if (version < 0 || version > MaxVersion)
+                throw new ArgumentOutOfRangeException(nameof(version));
+        }
 
         public static byte Dance(byte input, int index)
         {

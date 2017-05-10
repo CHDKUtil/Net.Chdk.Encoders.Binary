@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using static Net.Chdk.Encoders.Binary.Utility;
 
 namespace Net.Chdk.Encoders.Binary
@@ -10,12 +9,7 @@ namespace Net.Chdk.Encoders.Binary
 
         public static void Encode(Stream inStream, Stream outStream, int version)
         {
-            if (inStream == null)
-                throw new ArgumentNullException(nameof(inStream));
-            if (outStream == null)
-                throw new ArgumentNullException(nameof(outStream));
-            if (version < 0 || version > MaxVersion)
-                throw new ArgumentOutOfRangeException(nameof(version));
+            Validate(inStream: inStream, outStream: outStream, version: version);
 
             if (version == 0)
             {
@@ -26,20 +20,20 @@ namespace Net.Chdk.Encoders.Binary
             Encode(inStream, outStream, Offsets[version - 1]);
         }
 
-        private static void Encode(Stream inStream, Stream outStream, int[] offsets)
+        private static void Encode(Stream decStream, Stream encStream, int[] offsets)
         {
-            var inBuffer = new byte[ChunkSize];
-            var outBuffer = new byte[ChunkSize];
+            var decBuffer = new byte[ChunkSize];
+            var encBuffer = new byte[ChunkSize];
 
-            outStream.Write(Prefix, 0, Prefix.Length);
+            encStream.Write(Prefix, 0, Prefix.Length);
 
             int size;
-            while ((size = inStream.Read(inBuffer, 0, ChunkSize)) > 0)
+            while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
             {
                 for (var start = 0; start < size; start += offsets.Length)
                     for (var index = 0; index < offsets.Length; index++)
-                        outBuffer[start + offsets[index]] = Dance(inBuffer[start + index], start + index);
-                outStream.Write(outBuffer, 0, size);
+                        encBuffer[start + offsets[index]] = Dance(decBuffer[start + index], start + index);
+                encStream.Write(encBuffer, 0, size);
             }
         }
     }
