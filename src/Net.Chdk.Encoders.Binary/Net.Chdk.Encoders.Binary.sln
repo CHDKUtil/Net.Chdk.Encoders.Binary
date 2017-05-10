@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.DancingBits", "Net.Chdk.Encoders.DancingBits.csproj", "{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.Binary", "Net.Chdk.Encoders.Binary.csproj", "{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Net.Chdk.Shared", "..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.shproj", "{83C6A77C-3286-4F5F-B628-3B971097AD05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.DancingBits.Console", "..\Net.Chdk.Encoders.DancingBits.Console\Net.Chdk.Encoders.DancingBits.Console.csproj", "{AB0A4ADD-4505-4BAC-9685-DF336849E4E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.Binary.Console", "..\Net.Chdk.Encoders.Binary.Console\Net.Chdk.Encoders.Binary.Console.csproj", "{AB0A4ADD-4505-4BAC-9685-DF336849E4E6}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

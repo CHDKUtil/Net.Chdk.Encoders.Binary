@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Net.Chdk.Encoders.DancingBits
+namespace Net.Chdk.Encoders.Binary
 {
     static class Program
     {
@@ -35,7 +35,7 @@ namespace Net.Chdk.Encoders.DancingBits
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                DancingBitsEncoder.Encode(inStream, outStream, version);
+                BinaryEncoder.Encode(inStream, outStream, version);
             }
         }
 
@@ -44,7 +44,7 @@ namespace Net.Chdk.Encoders.DancingBits
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                DancingBitsEncoder.Decode(inStream, outStream, version);
+                BinaryEncoder.Decode(inStream, outStream, version);
             }
         }
 
@@ -104,7 +104,7 @@ namespace Net.Chdk.Encoders.DancingBits
                 return false;
 
             int tempVer;
-            if (!int.TryParse(arg, out tempVer) || tempVer < 0 || tempVer > DancingBitsEncoder.MaxVersion)
+            if (!int.TryParse(arg, out tempVer) || tempVer < 0 || tempVer > BinaryEncoder.MaxVersion)
                 return false;
 
             version = tempVer;

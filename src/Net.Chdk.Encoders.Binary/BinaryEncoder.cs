@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-namespace Net.Chdk.Encoders.DancingBits
+namespace Net.Chdk.Encoders.Binary
 {
-    public sealed class DancingBitsEncoder
+    public sealed class BinaryEncoder
     {
         private const int ChunkSize = 0x400;
 
