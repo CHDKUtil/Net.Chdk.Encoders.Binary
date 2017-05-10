@@ -34,8 +34,23 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\Net.Chdk.Encoders.Binary\packages\Microsoft.Extensions.DependencyInjection.1.1.0\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\Net.Chdk.Encoders.Binary\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\Net.Chdk.Encoders.Binary\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,8 +64,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\boot.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj">
+      <Project>{5E2FDEDB-20FA-401D-AD6B-38088BB14D3A}</Project>
+      <Name>Net.Chdk.Encoders.Binary.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj">
+      <Project>{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}</Project>
+      <Name>Net.Chdk.Providers.Boot.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot\src\Net.Chdk.Providers.Boot\Net.Chdk.Providers.Boot.csproj">
+      <Project>{0396213c-0a79-44d3-80cf-93ef10f3d331}</Project>
+      <Name>Net.Chdk.Providers.Boot</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Net.Chdk.Encoders.Binary\Net.Chdk.Encoders.Binary.csproj">
       <Project>{62da1e42-36a6-4fa5-8439-6634d47fdbf3}</Project>
       <Name>Net.Chdk.Encoders.Binary</Name>

@@ -37,11 +37,19 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj">
+      <Project>{5E2FDEDB-20FA-401D-AD6B-38088BB14D3A}</Project>
+      <Name>Net.Chdk.Encoders.Binary.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj">
+      <Project>{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}</Project>
+      <Name>Net.Chdk.Providers.Boot.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryDecoder.cs" />
     <Compile Include="BinaryEncoder.cs" />
-    <Compile Include="Utility.cs" />
+    <Compile Include="BinaryEncoderDecoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems" Label="Shared" />

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Net.Chdk.Providers.Boot;
+using System;
 using System.IO;
 
 namespace Net.Chdk.Encoders.Binary
@@ -7,11 +9,20 @@ namespace Net.Chdk.Encoders.Binary
     {
         static void Main(string[] args)
         {
+            var serviceProvider = new ServiceCollection()
+                .AddBootProvider()
+                .AddSingleton<IBinaryEncoder, BinaryEncoder>()
+                .AddSingleton<IBinaryDecoder, BinaryDecoder>()
+                .BuildServiceProvider();
+
+            var encoder = serviceProvider.GetService<IBinaryEncoder>();
+            var decoder = serviceProvider.GetService<IBinaryDecoder>();
+
             string inFile = null;
             string outFile = null;
             int? version = null;
             bool? decode = null;
-            if (!TryParseArgs(args, out inFile, out outFile, out version, out decode))
+            if (!TryParseArgs(args, encoder, out inFile, out outFile, out version, out decode))
             {
                 Usage();
                 return;
@@ -20,9 +31,9 @@ namespace Net.Chdk.Encoders.Binary
             try
             {
                 if (decode.HasValue && decode.Value)
-                    Decode(inFile, outFile, version.Value);
+                    Decode(decoder, inFile, outFile, version.Value);
                 else
-                    Encode(inFile, outFile, version.Value);
+                    Encode(encoder, inFile, outFile, version.Value);
             }
             catch (Exception ex)
             {
@@ -30,25 +41,25 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static void Encode(string inFile, string outFile, int version)
+        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, int version)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                BinaryEncoder.Encode(inStream, outStream, version);
+                encoder.Encode(inStream, outStream, version);
             }
         }
 
-        private static void Decode(string inFile, string outFile, int version)
+        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, int version)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                BinaryDecoder.Decode(inStream, outStream, version);
+                return decoder.Decode(inStream, outStream, version);
             }
         }
 
-        private static bool TryParseArgs(string[] args, out string inFile, out string outFile, out int? version, out bool? decode)
+        private static bool TryParseArgs(string[] args, IBinaryEncoder encoder, out string inFile, out string outFile, out int? version, out bool? decode)
         {
             inFile = null;
             outFile = null;
@@ -73,7 +84,7 @@ namespace Net.Chdk.Encoders.Binary
                 {
                     outFile = arg;
                 }
-                else if (!TryParseVersion(arg, ref version))
+                else if (!TryParseVersion(arg, encoder, ref version))
                 {
                     Console.Error.WriteLine("Invalid version {0}", arg);
                     return false;
@@ -98,13 +109,13 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static bool TryParseVersion(string arg, ref int? version)
+        private static bool TryParseVersion(string arg, IBinaryEncoder encoder, ref int? version)
         {
             if (version != null)
                 return false;
 
             int tempVer;
-            if (!int.TryParse(arg, out tempVer) || tempVer < 0 || tempVer > BinaryEncoder.MaxVersion)
+            if (!int.TryParse(arg, out tempVer) || tempVer < 0 || tempVer > encoder.MaxVersion)
                 return false;
 
             version = tempVer;

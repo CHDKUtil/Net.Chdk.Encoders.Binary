@@ -1,14 +1,17 @@
-﻿using System.IO;
+﻿using Net.Chdk.Providers.Boot;
+using System.IO;
 using System.Linq;
-using static Net.Chdk.Encoders.Binary.Utility;
 
 namespace Net.Chdk.Encoders.Binary
 {
-    public sealed class BinaryDecoder
+    public sealed class BinaryDecoder : BinaryEncoderDecoder, IBinaryDecoder
     {
-        public static int MaxVersion => Utility.MaxVersion;
+        public BinaryDecoder(IBootProvider bootProvider)
+            : base(bootProvider)
+        {
+        }
 
-        public static bool Decode(Stream inStream, Stream outStream, int version)
+        public bool Decode(Stream inStream, Stream outStream, int version)
         {
             Validate(inStream: inStream, outStream: outStream, version: version);
 
@@ -21,7 +24,7 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(inStream, outStream, Offsets[version - 1]);
         }
 
-        private static bool Decode(Stream encStream, Stream decStream, int[] offsets)
+        private bool Decode(Stream encStream, Stream decStream, int[] offsets)
         {
             var encBuffer = new byte[ChunkSize];
             var decBuffer = new byte[ChunkSize];

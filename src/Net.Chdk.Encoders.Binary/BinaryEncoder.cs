@@ -1,13 +1,16 @@
-﻿using System.IO;
-using static Net.Chdk.Encoders.Binary.Utility;
+﻿using Net.Chdk.Providers.Boot;
+using System.IO;
 
 namespace Net.Chdk.Encoders.Binary
 {
-    public sealed class BinaryEncoder
+    public sealed class BinaryEncoder : BinaryEncoderDecoder, IBinaryEncoder
     {
-        public static int MaxVersion => Utility.MaxVersion;
+        public BinaryEncoder(IBootProvider bootProvider)
+            : base(bootProvider)
+        {
+        }
 
-        public static void Encode(Stream inStream, Stream outStream, int version)
+        public void Encode(Stream inStream, Stream outStream, int version)
         {
             Validate(inStream: inStream, outStream: outStream, version: version);
 
@@ -20,7 +23,7 @@ namespace Net.Chdk.Encoders.Binary
             Encode(inStream, outStream, Offsets[version - 1]);
         }
 
-        private static void Encode(Stream decStream, Stream encStream, int[] offsets)
+        private void Encode(Stream decStream, Stream encStream, int[] offsets)
         {
             var decBuffer = new byte[ChunkSize];
             var encBuffer = new byte[ChunkSize];
