@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using static Net.Chdk.Encoders.Binary.Utility;
 
 namespace Net.Chdk.Encoders.Binary
@@ -8,7 +9,7 @@ namespace Net.Chdk.Encoders.Binary
     {
         public static int MaxVersion => Utility.MaxVersion;
 
-        public static void Decode(Stream inStream, Stream outStream, int version)
+        public static bool Decode(Stream inStream, Stream outStream, int version)
         {
             if (inStream == null)
                 throw new ArgumentNullException(nameof(inStream));
@@ -18,17 +19,24 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentOutOfRangeException(nameof(version));
 
             if (version == 0)
+            {
                 inStream.CopyTo(outStream);
-            else
-                Decode(inStream, outStream, Offsets[version - 1]);
+                return true;
+            }
+
+            return Decode(inStream, outStream, Offsets[version - 1]);
         }
 
-        private static void Decode(Stream inStream, Stream outStream, int[] offsets)
+        private static bool Decode(Stream inStream, Stream outStream, int[] offsets)
         {
             var inBuffer = new byte[ChunkSize];
             var outBuffer = new byte[ChunkSize];
-            int size;
-            inStream.ReadByte();
+
+            var length = Prefix.Length;
+            var size = inStream.Read(inBuffer, 0, length);
+            if (size < length || Enumerable.Range(0, length).Any(i => inBuffer[i] != Prefix[i]))
+                return false;
+
             while ((size = inStream.Read(inBuffer, 0, ChunkSize)) > 0)
             {
                 for (var start = 0; start < size; start += offsets.Length)
@@ -36,6 +44,8 @@ namespace Net.Chdk.Encoders.Binary
                         outBuffer[start + index] = Dance(inBuffer[start + offsets[index]], start + index);
                 outStream.Write(outBuffer, 0, size);
             }
+
+            return true;
         }
     }
 }

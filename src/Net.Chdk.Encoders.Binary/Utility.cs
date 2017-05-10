@@ -4,6 +4,8 @@
     {
         public const int ChunkSize = 0x400;
 
+        public static readonly byte[] Prefix = new byte[] { 0 };
+
         public static readonly int[][] Offsets =
         {
             new[] { 4,6,1,0,7,2,5,3 }, // original flavor
