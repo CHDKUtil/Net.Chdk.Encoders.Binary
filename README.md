@@ -1,1 +1,1 @@
-# Net.Chdk.Encoders.DancingBits
+# Net.Chdk.Encoders.Binary
