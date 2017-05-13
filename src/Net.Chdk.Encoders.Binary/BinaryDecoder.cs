@@ -12,15 +12,15 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public bool Decode(Stream inStream, Stream outStream, int version)
+        public bool Decode(Stream encStream, Stream decStream, int version)
         {
-            Validate(inStream: inStream, outStream: outStream, version: version);
+            Validate(encStream: encStream, decStream: decStream, version: version);
 
-            if (TryCopy(inStream, outStream, version))
+            if (TryCopy(encStream, decStream, version))
                 return true;
 
             Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
-            return Decode(inStream, outStream, Offsets[version - 1]);
+            return Decode(encStream, decStream, Offsets[version - 1]);
         }
 
         public bool Decode(byte[] encBuffer, byte[] decBuffer, int version)

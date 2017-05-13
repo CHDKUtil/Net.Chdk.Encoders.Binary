@@ -28,12 +28,12 @@ namespace Net.Chdk.Encoders.Binary
 
         protected string FileName => BootProvider.FileName;
 
-        protected void Validate(Stream inStream, Stream outStream, int version)
+        protected void Validate(Stream decStream, Stream encStream, int version)
         {
-            if (inStream == null)
-                throw new ArgumentNullException(nameof(inStream));
-            if (outStream == null)
-                throw new ArgumentNullException(nameof(outStream));
+            if (decStream == null)
+                throw new ArgumentNullException(nameof(decStream));
+            if (encStream == null)
+                throw new ArgumentNullException(nameof(encStream));
             if (version < 0 || version > MaxVersion)
                 throw new ArgumentOutOfRangeException(nameof(version));
         }
