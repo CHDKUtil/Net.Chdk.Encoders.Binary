@@ -7,6 +7,7 @@ namespace Net.Chdk.Encoders.Binary
 {
     public abstract class BinaryEncoderDecoder
     {
+        protected const int OffsetLength = 8;
         protected const int ChunkSize = 0x400;
 
         protected ILogger Logger { get; }
@@ -35,6 +36,38 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentNullException(nameof(outStream));
             if (version < 0 || version > MaxVersion)
                 throw new ArgumentOutOfRangeException(nameof(version));
+        }
+
+        protected void Validate(byte[] decBuffer, byte[] encBuffer, int version)
+        {
+            if (decBuffer == null)
+                throw new ArgumentNullException(nameof(decBuffer));
+            if (encBuffer == null)
+                throw new ArgumentNullException(nameof(encBuffer));
+            if (version < 0 || version > MaxVersion)
+                throw new ArgumentOutOfRangeException(nameof(version));
+        }
+
+        protected bool TryCopy(Stream inStream, Stream outStream, int version)
+        {
+            if (version == 0)
+            {
+                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
+                inStream.CopyTo(outStream);
+                return true;
+            }
+            return false;
+        }
+
+        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, int version)
+        {
+            if (version == 0)
+            {
+                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
+                Array.Copy(inBuffer, outBuffer, outBuffer.Length);
+                return true;
+            }
+            return false;
         }
 
         protected static byte Dance(byte input, int index)

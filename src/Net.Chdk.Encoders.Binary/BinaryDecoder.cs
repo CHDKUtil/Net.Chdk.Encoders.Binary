@@ -16,15 +16,22 @@ namespace Net.Chdk.Encoders.Binary
         {
             Validate(inStream: inStream, outStream: outStream, version: version);
 
-            if (version == 0)
-            {
-                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
-                inStream.CopyTo(outStream);
+            if (TryCopy(inStream, outStream, version))
                 return true;
-            }
 
             Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
             return Decode(inStream, outStream, Offsets[version - 1]);
+        }
+
+        public bool Decode(byte[] encBuffer, byte[] decBuffer, int version)
+        {
+            Validate(encBuffer: encBuffer, decBuffer: decBuffer, version: version);
+
+            if (TryCopy(encBuffer, decBuffer, version))
+                return true;
+
+            Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
+            return Decode(encBuffer, decBuffer, Offsets[version - 1]);
         }
 
         private bool Decode(Stream encStream, Stream decStream, int[] offsets)
@@ -32,20 +39,47 @@ namespace Net.Chdk.Encoders.Binary
             var encBuffer = new byte[ChunkSize];
             var decBuffer = new byte[ChunkSize];
 
-            var length = Prefix.Length;
-            var size = encStream.Read(encBuffer, 0, length);
-            if (size < length || Enumerable.Range(0, length).Any(i => encBuffer[i] != Prefix[i]))
+            var size = encStream.Read(encBuffer, 0, Prefix.Length);
+            if (!ValidatePrefix(encBuffer, size))
                 return false;
 
             while ((size = encStream.Read(encBuffer, 0, ChunkSize)) > 0)
             {
-                for (var start = 0; start < size; start += offsets.Length)
-                    for (var index = 0; index < offsets.Length; index++)
-                        decBuffer[start + index] = Dance(encBuffer[start + offsets[index]], start + index);
+                Decode(encBuffer, decBuffer, 0, size, offsets);
                 decStream.Write(decBuffer, 0, size);
             }
 
             return true;
+        }
+
+        private bool Decode(byte[] encBuffer, byte[] decBuffer, int[] offsets)
+        {
+            var prefixLength = Prefix.Length;
+            var bufferLength = encBuffer.Length;
+
+            if (!ValidatePrefix(encBuffer, bufferLength))
+                return false;
+
+            int size;
+            for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+            {
+                size = ChunkSize <= bufferLength - start ? ChunkSize : bufferLength - start;
+                Decode(encBuffer, decBuffer, start, size, offsets);
+            }
+
+            return true;
+        }
+
+        private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, int size, int[] offsets)
+        {
+            for (var start0 = start; start < start0 + size; start += OffsetLength)
+                for (var index = 0; index < OffsetLength; index++)
+                    decBuffer[start + index] = Dance(encBuffer[start + offsets[index]], start + index - start0);
+        }
+
+        private bool ValidatePrefix(byte[] encBuffer, int size)
+        {
+            return !(size < Prefix.Length || Enumerable.Range(0, Prefix.Length).Any(i => encBuffer[i] != Prefix[i]));
         }
     }
 }

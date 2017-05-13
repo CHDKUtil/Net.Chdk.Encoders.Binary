@@ -15,15 +15,22 @@ namespace Net.Chdk.Encoders.Binary
         {
             Validate(inStream: inStream, outStream: outStream, version: version);
 
-            if (version == 0)
-            {
-                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
-                inStream.CopyTo(outStream);
+            if (TryCopy(inStream, outStream, version))
                 return;
-            }
 
             Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
             Encode(inStream, outStream, Offsets[version - 1]);
+        }
+
+        public void Encode(byte[] decBuffer, byte[] encBuffer, int version)
+        {
+            Validate(decBuffer: decBuffer, encBuffer: encBuffer, version: version);
+
+            if (TryCopy(decBuffer, encBuffer, version))
+                return;
+
+            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
+            Encode(decBuffer, encBuffer, Offsets[version - 1]);
         }
 
         private void Encode(Stream decStream, Stream encStream, int[] offsets)
@@ -36,11 +43,32 @@ namespace Net.Chdk.Encoders.Binary
             int size;
             while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
             {
-                for (var start = 0; start < size; start += offsets.Length)
-                    for (var index = 0; index < offsets.Length; index++)
-                        encBuffer[start + offsets[index]] = Dance(decBuffer[start + index], start + index);
+                Encode(decBuffer, encBuffer, 0, size, offsets);
                 encStream.Write(encBuffer, 0, size);
             }
+        }
+
+        private void Encode(byte[] decBuffer, byte[] encBuffer, int[] offsets)
+        {
+            var prefixLength = Prefix.Length;
+            var bufferLength = decBuffer.Length;
+
+            for (var i = 0; i < prefixLength; i++)
+                encBuffer[i] = Prefix[i];
+
+            int size;
+            for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+            {
+                size = ChunkSize <= bufferLength - start ? ChunkSize : bufferLength - start;
+                Encode(decBuffer, encBuffer, start, size, offsets);
+            }
+        }
+
+        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, int[] offsets)
+        {
+            for (var start0 = start; start < start0 + size; start += OffsetLength)
+                for (var index = 0; index < OffsetLength; index++)
+                    encBuffer[start + offsets[index]] = Dance(decBuffer[start + index], start + index - start0);
         }
     }
 }
