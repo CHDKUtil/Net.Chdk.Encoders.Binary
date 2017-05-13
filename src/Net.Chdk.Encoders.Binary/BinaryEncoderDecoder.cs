@@ -1,4 +1,5 @@
-﻿using Net.Chdk.Providers.Boot;
+﻿using Chimp.Logging;
+using Net.Chdk.Providers.Boot;
 using System;
 using System.IO;
 
@@ -8,11 +9,14 @@ namespace Net.Chdk.Encoders.Binary
     {
         protected const int ChunkSize = 0x400;
 
+        protected ILogger Logger { get; }
+
         private IBootProvider BootProvider { get; }
 
-        public BinaryEncoderDecoder(IBootProvider bootProvider)
+        public BinaryEncoderDecoder(IBootProvider bootProvider, ILogger logger)
         {
             BootProvider = bootProvider;
+            Logger = logger;
         }
 
         public int MaxVersion => Offsets.Length;
@@ -20,6 +24,8 @@ namespace Net.Chdk.Encoders.Binary
         protected int[][] Offsets => BootProvider.Offsets;
 
         protected byte[] Prefix => BootProvider.Prefix;
+
+        protected string FileName => BootProvider.FileName;
 
         protected void Validate(Stream inStream, Stream outStream, int version)
         {

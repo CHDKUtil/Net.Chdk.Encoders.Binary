@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Chimp.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Net.Chdk.Providers.Boot;
 using System;
 using System.IO;
@@ -13,6 +14,7 @@ namespace Net.Chdk.Encoders.Binary
                 .AddBootProvider()
                 .AddSingleton<IBinaryEncoder, BinaryEncoder>()
                 .AddSingleton<IBinaryDecoder, BinaryDecoder>()
+                .AddSingleton<ILoggerFactory>(NoOpLoggerFactory.Instance)
                 .BuildServiceProvider();
 
             var encoder = serviceProvider.GetService<IBinaryEncoder>();

@@ -1,4 +1,5 @@
-﻿using Net.Chdk.Providers.Boot;
+﻿using Chimp.Logging;
+using Net.Chdk.Providers.Boot;
 using System.IO;
 using System.Linq;
 
@@ -6,8 +7,8 @@ namespace Net.Chdk.Encoders.Binary
 {
     public sealed class BinaryDecoder : BinaryEncoderDecoder, IBinaryDecoder
     {
-        public BinaryDecoder(IBootProvider bootProvider)
-            : base(bootProvider)
+        public BinaryDecoder(IBootProvider bootProvider, ILoggerFactory loggerFactory)
+            : base(bootProvider, loggerFactory.CreateLogger<BinaryDecoder>())
         {
         }
 
@@ -17,10 +18,12 @@ namespace Net.Chdk.Encoders.Binary
 
             if (version == 0)
             {
+                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
                 inStream.CopyTo(outStream);
                 return true;
             }
 
+            Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
             return Decode(inStream, outStream, Offsets[version - 1]);
         }
 
