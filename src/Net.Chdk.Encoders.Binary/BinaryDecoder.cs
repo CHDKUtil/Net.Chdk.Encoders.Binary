@@ -20,7 +20,8 @@ namespace Net.Chdk.Encoders.Binary
                 return true;
 
             Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
-            return Decode(encStream, decStream, Offsets[version - 1]);
+            var offsets = CopyOffsets(version);
+            return Decode(encStream, decStream, offsets);
         }
 
         public bool Decode(byte[] encBuffer, byte[] decBuffer, int version)
@@ -31,7 +32,8 @@ namespace Net.Chdk.Encoders.Binary
                 return true;
 
             Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
-            return Decode(encBuffer, decBuffer, Offsets[version - 1]);
+            var offsets = CopyOffsets(version);
+            return Decode(encBuffer, decBuffer, offsets);
         }
 
         private unsafe bool Decode(Stream encStream, Stream decStream, int[] offsets)

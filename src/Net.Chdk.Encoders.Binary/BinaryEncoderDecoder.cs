@@ -72,6 +72,14 @@ namespace Net.Chdk.Encoders.Binary
             return false;
         }
 
+        protected int[] CopyOffsets(int version)
+        {
+            var offsets = new int[Offsets[version - 1].Length];
+            for (var i = 0; i < Offsets[version - 1].Length; i++)
+                offsets[i] = Offsets[version - 1][i];
+            return offsets;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static byte Dance(byte input, int index)
         {

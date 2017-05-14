@@ -20,7 +20,8 @@ namespace Net.Chdk.Encoders.Binary
                 return;
 
             Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
-            Encode(decStream, encStream, Offsets[version - 1]);
+            var offsets = CopyOffsets(version);
+            Encode(decStream, encStream, offsets);
         }
 
         public void Encode(byte[] decBuffer, byte[] encBuffer, int version)
@@ -31,7 +32,8 @@ namespace Net.Chdk.Encoders.Binary
                 return;
 
             Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
-            Encode(decBuffer, encBuffer, Offsets[version - 1]);
+            var offsets = CopyOffsets(version);
+            Encode(decBuffer, encBuffer, offsets);
         }
 
         private unsafe void Encode(Stream decStream, Stream encStream, int[] offsets)
