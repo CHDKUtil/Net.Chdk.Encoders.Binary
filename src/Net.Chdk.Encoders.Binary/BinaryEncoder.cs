@@ -34,22 +34,26 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decBuffer, encBuffer, Offsets[version - 1]);
         }
 
-        private void Encode(Stream decStream, Stream encStream, int[] offsets)
+        private unsafe void Encode(Stream decStream, Stream encStream, int[] offsets)
         {
             var decBuffer = new byte[ChunkSize];
             var encBuffer = new byte[ChunkSize];
 
             encStream.Write(Prefix, 0, Prefix.Length);
 
-            int size;
-            while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
+            fixed (byte* pDecBuffer = decBuffer)
+            fixed (byte* pEncBuffer = encBuffer)
             {
-                Encode(decBuffer, encBuffer, 0, size, offsets);
-                encStream.Write(encBuffer, 0, size);
+                int size;
+                while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
+                {
+                    Encode(pDecBuffer, pEncBuffer, 0, size, offsets);
+                    encStream.Write(encBuffer, 0, size);
+                }
             }
         }
 
-        private void Encode(byte[] decBuffer, byte[] encBuffer, int[] offsets)
+        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, int[] offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = decBuffer.Length;
@@ -57,17 +61,21 @@ namespace Net.Chdk.Encoders.Binary
             for (var i = 0; i < prefixLength; i++)
                 encBuffer[i] = Prefix[i];
 
-            for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+            fixed (byte* pDecBuffer = decBuffer)
+            fixed (byte* pEncBuffer = encBuffer)
             {
-                if (start <= bufferLength - ChunkSize)
-                    Encode(decBuffer, encBuffer, start, offsets);
-                else
-                    Encode(decBuffer, encBuffer, start, bufferLength - start, offsets);
+                for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+                {
+                    if (start <= bufferLength - ChunkSize)
+                        Encode(pDecBuffer, pEncBuffer, start, offsets);
+                    else
+                        Encode(pDecBuffer, pEncBuffer, start, bufferLength - start, offsets);
+                }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int[] offsets)
+        private static unsafe void Encode(byte* decBuffer, byte* encBuffer, int start, int[] offsets)
         {
             for (var disp = 0; disp < ChunkSize; disp += offsets.Length)
                 for (var index = 0; index < offsets.Length; index++)
@@ -75,7 +83,7 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, int[] offsets)
+        private static unsafe void Encode(byte* decBuffer, byte* encBuffer, int start, int size, int[] offsets)
         {
             for (var disp = 0; disp < size; disp += offsets.Length)
                 for (var index = 0; index < offsets.Length; index++)
