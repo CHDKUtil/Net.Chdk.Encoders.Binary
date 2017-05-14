@@ -46,6 +46,8 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentNullException(nameof(encBuffer));
             if (version < 0 || version > MaxVersion)
                 throw new ArgumentOutOfRangeException(nameof(version));
+            if (decBuffer.Length != encBuffer.Length)
+                throw new ArgumentException("Mismatching buffer lengths");
         }
 
         protected bool TryCopy(Stream inStream, Stream outStream, int version)
