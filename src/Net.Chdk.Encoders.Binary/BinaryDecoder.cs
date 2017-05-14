@@ -59,21 +59,29 @@ namespace Net.Chdk.Encoders.Binary
             if (!ValidatePrefix(encBuffer, bufferLength))
                 return false;
 
-            int size;
             for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
             {
-                size = ChunkSize <= bufferLength - start ? ChunkSize : bufferLength - start;
-                Decode(encBuffer, decBuffer, start, size, offsets);
+                if (start <= bufferLength - ChunkSize)
+                    Decode(encBuffer, decBuffer, start, offsets);
+                else
+                    Decode(encBuffer, decBuffer, start, bufferLength - start, offsets);
             }
 
             return true;
         }
 
+        private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, int[] offsets)
+        {
+            for (var disp = 0; disp < ChunkSize; disp += offsets.Length)
+                for (var index = 0; index < offsets.Length; index++)
+                    decBuffer[start + disp + index] = Dance(encBuffer[start + disp + offsets[index]], disp + index);
+        }
+
         private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, int size, int[] offsets)
         {
-            for (var start0 = start; start < start0 + size; start += offsets.Length)
+            for (var disp = 0; disp < size; disp += offsets.Length)
                 for (var index = 0; index < offsets.Length; index++)
-                    decBuffer[start + index] = Dance(encBuffer[start + offsets[index]], start + index - start0);
+                    decBuffer[start + disp + index] = Dance(encBuffer[start + disp + offsets[index]], disp + index);
         }
 
         private bool ValidatePrefix(byte[] encBuffer, int size)
