@@ -47,10 +47,11 @@ namespace Net.Chdk.Encoders.Binary
 
             fixed (byte* pEncBuffer = encBuffer)
             fixed (byte* pDecBuffer = decBuffer)
+            fixed (int* pOffsets = offsets)
             {
                 while ((size = encStream.Read(encBuffer, 0, ChunkSize)) > 0)
                 {
-                    Decode(pEncBuffer, pDecBuffer, 0, size, offsets);
+                    Decode(pEncBuffer, pDecBuffer, 0, size, pOffsets);
                     decStream.Write(decBuffer, 0, size);
                 }
             }
@@ -68,13 +69,14 @@ namespace Net.Chdk.Encoders.Binary
 
             fixed (byte* pEncBuffer = encBuffer)
             fixed (byte* pDecBuffer = decBuffer)
+            fixed (int* pOffsets = offsets)
             {
                 for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
                 {
                     if (start <= bufferLength - ChunkSize)
-                        Decode(pEncBuffer, pDecBuffer, start, offsets);
+                        Decode(pEncBuffer, pDecBuffer, start, pOffsets);
                     else
-                        Decode(pEncBuffer, pDecBuffer, start, bufferLength - start, offsets);
+                        Decode(pEncBuffer, pDecBuffer, start, bufferLength - start, pOffsets);
                 }
             }
 
@@ -82,18 +84,18 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Decode(byte* encBuffer, byte* decBuffer, int start, int[] offsets)
+        private static unsafe void Decode(byte* encBuffer, byte* decBuffer, int start, int* offsets)
         {
-            for (var disp = 0; disp < ChunkSize; disp += offsets.Length)
-                for (var index = 0; index < offsets.Length; index++)
+            for (var disp = 0; disp < ChunkSize; disp += OffsetLength)
+                for (var index = 0; index < OffsetLength; index++)
                     decBuffer[start + disp + index] = Dance(encBuffer[start + disp + offsets[index]], disp + index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Decode(byte* encBuffer, byte* decBuffer, int start, int size, int[] offsets)
+        private static unsafe void Decode(byte* encBuffer, byte* decBuffer, int start, int size, int* offsets)
         {
-            for (var disp = 0; disp < size; disp += offsets.Length)
-                for (var index = 0; index < offsets.Length; index++)
+            for (var disp = 0; disp < size; disp += OffsetLength)
+                for (var index = 0; index < OffsetLength; index++)
                     decBuffer[start + disp + index] = Dance(encBuffer[start + disp + offsets[index]], disp + index);
         }
 
