@@ -66,8 +66,8 @@ namespace Net.Chdk.Encoders.Binary
 
         private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, int[] offsets)
         {
-            for (var start0 = start; start < start0 + size; start += OffsetLength)
-                for (var index = 0; index < OffsetLength; index++)
+            for (var start0 = start; start < start0 + size; start += offsets.Length)
+                for (var index = 0; index < offsets.Length; index++)
                     encBuffer[start + offsets[index]] = Dance(decBuffer[start + index], start + index - start0);
         }
     }

@@ -1,7 +1,6 @@
 ﻿using Chimp.Logging;
 using Net.Chdk.Providers.Boot;
 using System.IO;
-using System.Linq;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -72,14 +71,19 @@ namespace Net.Chdk.Encoders.Binary
 
         private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, int size, int[] offsets)
         {
-            for (var start0 = start; start < start0 + size; start += OffsetLength)
-                for (var index = 0; index < OffsetLength; index++)
+            for (var start0 = start; start < start0 + size; start += offsets.Length)
+                for (var index = 0; index < offsets.Length; index++)
                     decBuffer[start + index] = Dance(encBuffer[start + offsets[index]], start + index - start0);
         }
 
         private bool ValidatePrefix(byte[] encBuffer, int size)
         {
-            return !(size < Prefix.Length || Enumerable.Range(0, Prefix.Length).Any(i => encBuffer[i] != Prefix[i]));
+            if (size < Prefix.Length)
+                return false;
+            for (var i = 0; i < Prefix.Length; i++)
+                if (encBuffer[i] != Prefix[i])
+                    return false;
+            return true;
         }
     }
 }
