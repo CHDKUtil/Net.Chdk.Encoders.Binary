@@ -8,6 +8,8 @@ namespace Net.Chdk.Encoders.Binary
 {
     public abstract class BinaryEncoderDecoder
     {
+        protected const int OffsetLength = 8;
+        protected const int OffsetShift = 3;
         protected const int ChunkSize = 0x400;
 
         protected ILogger Logger { get; }
@@ -68,6 +70,15 @@ namespace Net.Chdk.Encoders.Binary
                 return true;
             }
             return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static ulong GetOffsets(int[] offsets)
+        {
+            var uOffsets = 0ul;
+            for (var index = 0; index < offsets.Length; index++)
+                uOffsets += (ulong)offsets[index] << (index << OffsetShift);
+            return uOffsets;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

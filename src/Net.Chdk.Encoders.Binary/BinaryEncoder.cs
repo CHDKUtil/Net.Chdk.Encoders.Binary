@@ -41,10 +41,11 @@ namespace Net.Chdk.Encoders.Binary
 
             encStream.Write(Prefix, 0, Prefix.Length);
 
+            var uOffsets = GetOffsets(offsets);
             int size;
             while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
             {
-                Encode(decBuffer, encBuffer, 0, size, offsets);
+                Encode(decBuffer, encBuffer, 0, size, uOffsets);
                 encStream.Write(encBuffer, 0, size);
             }
         }
@@ -57,29 +58,38 @@ namespace Net.Chdk.Encoders.Binary
             for (var i = 0; i < prefixLength; i++)
                 encBuffer[i] = Prefix[i];
 
+            var uOffsets = GetOffsets(offsets);
             var start = prefixLength;
             while (start <= bufferLength - ChunkSize)
             {
-                Encode(decBuffer, encBuffer, start, offsets);
+                Encode(decBuffer, encBuffer, start, uOffsets);
                 start += ChunkSize;
             }
-            Encode(decBuffer, encBuffer, start, bufferLength - start, offsets);
+            Encode(decBuffer, encBuffer, start, bufferLength - start, uOffsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int[] offsets)
+        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, ulong offsets)
         {
-            for (var disp = 0; disp < ChunkSize; disp += offsets.Length)
-                for (var index = 0; index < offsets.Length; index++)
-                    encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
+            for (var disp = 0; disp < ChunkSize; disp += OffsetLength)
+                EncodeRun(decBuffer, encBuffer, start, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, int[] offsets)
+        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, ulong offsets)
         {
-            for (var disp = 0; disp < size; disp += offsets.Length)
-                for (var index = 0; index < offsets.Length; index++)
-                    encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
+            for (var disp = 0; disp < size; disp += OffsetLength)
+                EncodeRun(decBuffer, encBuffer, start, disp, offsets);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeRun(byte[] decBuffer, byte[] encBuffer, int start, int disp, ulong offsets)
+        {
+            for (var index = 0; index < OffsetLength; index++)
+            {
+                var offset = (int)(offsets >> (index << OffsetShift) & (OffsetLength - 1));
+                encBuffer[start + disp + offset] = Dance(decBuffer[start + disp + index], disp + index);
+            }
         }
     }
 }
