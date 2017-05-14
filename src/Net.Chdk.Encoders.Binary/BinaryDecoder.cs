@@ -60,13 +60,13 @@ namespace Net.Chdk.Encoders.Binary
             if (!ValidatePrefix(encBuffer, bufferLength))
                 return false;
 
-            for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+            var start = prefixLength;
+            while (start <= bufferLength - ChunkSize)
             {
-                if (start <= bufferLength - ChunkSize)
-                    Decode(encBuffer, decBuffer, start, offsets);
-                else
-                    Decode(encBuffer, decBuffer, start, bufferLength - start, offsets);
+                Decode(encBuffer, decBuffer, start, offsets);
+                start += ChunkSize;
             }
+            Decode(encBuffer, decBuffer, start, bufferLength - start, offsets);
 
             return true;
         }

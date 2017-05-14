@@ -57,13 +57,13 @@ namespace Net.Chdk.Encoders.Binary
             for (var i = 0; i < prefixLength; i++)
                 encBuffer[i] = Prefix[i];
 
-            for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+            var start = prefixLength;
+            while (start <= bufferLength - ChunkSize)
             {
-                if (start <= bufferLength - ChunkSize)
-                    Encode(decBuffer, encBuffer, start, offsets);
-                else
-                    Encode(decBuffer, encBuffer, start, bufferLength - start, offsets);
+                Encode(decBuffer, encBuffer, start, offsets);
+                start += ChunkSize;
             }
+            Encode(decBuffer, encBuffer, start, bufferLength - start, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
