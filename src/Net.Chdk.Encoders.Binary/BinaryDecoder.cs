@@ -23,15 +23,15 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(encStream, decStream, Offsets[version - 1]);
         }
 
-        public bool Decode(byte[] encBuffer, byte[] decBuffer, int version)
+        public bool Decode(byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
-            Validate(encBuffer: encBuffer, decBuffer: decBuffer, version: version);
+            Validate(encBuffer: encBuffer, decBuffer: decBuffer, offsets: offsets);
 
-            if (TryCopy(encBuffer, decBuffer, version))
+            if (TryCopy(encBuffer, decBuffer, offsets))
                 return true;
 
-            Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
-            return Decode(encBuffer, decBuffer, Offsets[version - 1]);
+            Logger.Log(LogLevel.Trace, "Decoding {0} with 0x{1:x}", FileName, offsets);
+            return Decode(encBuffer, decBuffer, offsets.Value);
         }
 
         private bool Decode(Stream encStream, Stream decStream, int[] offsets)
@@ -53,7 +53,7 @@ namespace Net.Chdk.Encoders.Binary
             return true;
         }
 
-        private bool Decode(byte[] encBuffer, byte[] decBuffer, int[] offsets)
+        private bool Decode(byte[] encBuffer, byte[] decBuffer, ulong offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = encBuffer.Length;
@@ -61,14 +61,13 @@ namespace Net.Chdk.Encoders.Binary
             if (!ValidatePrefix(encBuffer, bufferLength))
                 return false;
 
-            var uOffsets = GetOffsets(offsets);
             var start = prefixLength;
             while (start <= bufferLength - ChunkSize)
             {
-                Decode(encBuffer, decBuffer, start, uOffsets);
+                Decode(encBuffer, decBuffer, start, offsets);
                 start += ChunkSize;
             }
-            Decode(encBuffer, decBuffer, start, bufferLength - start, uOffsets);
+            Decode(encBuffer, decBuffer, start, bufferLength - start, offsets);
 
             return true;
         }

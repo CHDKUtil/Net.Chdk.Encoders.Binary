@@ -23,15 +23,15 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decStream, encStream, Offsets[version - 1]);
         }
 
-        public void Encode(byte[] decBuffer, byte[] encBuffer, int version)
+        public void Encode(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
-            Validate(decBuffer: decBuffer, encBuffer: encBuffer, version: version);
+            Validate(decBuffer: decBuffer, encBuffer: encBuffer, offsets: offsets);
 
-            if (TryCopy(decBuffer, encBuffer, version))
+            if (TryCopy(decBuffer, encBuffer, offsets))
                 return;
 
-            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
-            Encode(decBuffer, encBuffer, Offsets[version - 1]);
+            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, offsets);
+            Encode(decBuffer, encBuffer, offsets);
         }
 
         private void Encode(Stream decStream, Stream encStream, int[] offsets)
@@ -50,7 +50,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private void Encode(byte[] decBuffer, byte[] encBuffer, int[] offsets)
+        private void Encode(byte[] decBuffer, byte[] encBuffer, ulong offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = decBuffer.Length;
@@ -58,14 +58,13 @@ namespace Net.Chdk.Encoders.Binary
             for (var i = 0; i < prefixLength; i++)
                 encBuffer[i] = Prefix[i];
 
-            var uOffsets = GetOffsets(offsets);
             var start = prefixLength;
             while (start <= bufferLength - ChunkSize)
             {
-                Encode(decBuffer, encBuffer, start, uOffsets);
+                Encode(decBuffer, encBuffer, start, offsets);
                 start += ChunkSize;
             }
-            Encode(decBuffer, encBuffer, start, bufferLength - start, uOffsets);
+            Encode(decBuffer, encBuffer, start, bufferLength - start, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

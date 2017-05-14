@@ -40,14 +40,12 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentOutOfRangeException(nameof(version));
         }
 
-        protected void Validate(byte[] decBuffer, byte[] encBuffer, int version)
+        protected void Validate(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
             if (decBuffer == null)
                 throw new ArgumentNullException(nameof(decBuffer));
             if (encBuffer == null)
                 throw new ArgumentNullException(nameof(encBuffer));
-            if (version < 0 || version > MaxVersion)
-                throw new ArgumentOutOfRangeException(nameof(version));
         }
 
         protected bool TryCopy(Stream inStream, Stream outStream, int version)
@@ -61,9 +59,9 @@ namespace Net.Chdk.Encoders.Binary
             return false;
         }
 
-        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, int version)
+        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, ulong? offsets)
         {
-            if (version == 0)
+            if (offsets == null)
             {
                 Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
                 Array.Copy(inBuffer, outBuffer, outBuffer.Length);
