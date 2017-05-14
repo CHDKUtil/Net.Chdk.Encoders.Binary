@@ -56,19 +56,27 @@ namespace Net.Chdk.Encoders.Binary
             for (var i = 0; i < prefixLength; i++)
                 encBuffer[i] = Prefix[i];
 
-            int size;
             for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
             {
-                size = ChunkSize <= bufferLength - start ? ChunkSize : bufferLength - start;
-                Encode(decBuffer, encBuffer, start, size, offsets);
+                if (start <= bufferLength - ChunkSize)
+                    Encode(decBuffer, encBuffer, start, offsets);
+                else
+                    Encode(decBuffer, encBuffer, start, bufferLength - start, offsets);
             }
+        }
+
+        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int[] offsets)
+        {
+            for (var disp = 0; disp < ChunkSize; disp += offsets.Length)
+                for (var index = 0; index < offsets.Length; index++)
+                    encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
         }
 
         private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, int[] offsets)
         {
-            for (var start0 = start; start < start0 + size; start += offsets.Length)
+            for (var disp = 0; disp < size; disp += offsets.Length)
                 for (var index = 0; index < offsets.Length; index++)
-                    encBuffer[start + offsets[index]] = Dance(decBuffer[start + index], start + index - start0);
+                    encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
         }
     }
 }
