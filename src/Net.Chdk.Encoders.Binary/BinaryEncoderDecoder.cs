@@ -2,6 +2,7 @@
 using Net.Chdk.Providers.Boot;
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -70,6 +71,7 @@ namespace Net.Chdk.Encoders.Binary
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static byte Dance(byte input, int index)
         {
             if ((index % 3) != 0)

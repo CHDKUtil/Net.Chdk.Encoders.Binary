@@ -1,6 +1,7 @@
 ﻿using Chimp.Logging;
 using Net.Chdk.Providers.Boot;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -65,6 +66,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int[] offsets)
         {
             for (var disp = 0; disp < ChunkSize; disp += offsets.Length)
@@ -72,6 +74,7 @@ namespace Net.Chdk.Encoders.Binary
                     encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, int[] offsets)
         {
             for (var disp = 0; disp < size; disp += offsets.Length)
