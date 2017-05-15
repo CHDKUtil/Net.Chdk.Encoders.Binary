@@ -14,7 +14,7 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public void Encode(Stream decStream, Stream encStream, ulong? offsets)
+        public void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
             Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
@@ -22,7 +22,7 @@ namespace Net.Chdk.Encoders.Binary
                 return;
 
             Logger.Log(LogLevel.Trace, "Encoding {0} with 0x{1:x}", FileName, offsets);
-            Encode(decStream, encStream, offsets.Value);
+            Encode(decStream, encStream, decBuffer, encBuffer, offsets.Value);
         }
 
         public void Encode(byte[] decBuffer, byte[] encBuffer, ulong[] ulBuffer, ulong? offsets)
@@ -36,11 +36,8 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decBuffer, encBuffer, ulBuffer, offsets.Value);
         }
 
-        private unsafe void Encode(Stream decStream, Stream encStream, ulong offsets)
+        private unsafe void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, ulong offsets)
         {
-            var decBuffer = new byte[ChunkSize];
-            var encBuffer = new byte[ChunkSize];
-
             encStream.Write(Prefix, 0, Prefix.Length);
 
             fixed (byte* pDecBuffer = decBuffer)

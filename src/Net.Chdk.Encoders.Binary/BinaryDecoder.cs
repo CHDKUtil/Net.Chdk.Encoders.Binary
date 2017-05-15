@@ -14,7 +14,7 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public bool Decode(Stream encStream, Stream decStream, ulong? offsets)
+        public bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
             Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
@@ -22,7 +22,7 @@ namespace Net.Chdk.Encoders.Binary
                 return true;
 
             Logger.Log(LogLevel.Trace, "Decoding {0} with 0x{1:x}", FileName, offsets);
-            return Decode(encStream, decStream, offsets.Value);
+            return Decode(encStream, decStream, encBuffer, decBuffer, offsets.Value);
         }
 
         public bool Decode(byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, ulong? offsets)
@@ -36,11 +36,8 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(encBuffer, decBuffer, ulBuffer, offsets.Value);
         }
 
-        private unsafe bool Decode(Stream encStream, Stream decStream, ulong offsets)
+        private unsafe bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, ulong offsets)
         {
-            var encBuffer = new byte[ChunkSize];
-            var decBuffer = new byte[ChunkSize];
-
             var size = encStream.Read(encBuffer, 0, Prefix.Length);
             if (!ValidatePrefix(encBuffer, size))
                 return false;

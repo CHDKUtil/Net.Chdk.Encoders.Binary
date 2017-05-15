@@ -8,6 +8,8 @@ namespace Net.Chdk.Encoders.Binary
 {
     static class Program
     {
+        private const int ChunkSize = 0x400;
+
         static void Main(string[] args)
         {
             var serviceProvider = new ServiceCollection()
@@ -61,7 +63,9 @@ namespace Net.Chdk.Encoders.Binary
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                encoder.Encode(inStream, outStream, offsets);
+                var decBuffer = new byte[ChunkSize];
+                var encBuffer = new byte[ChunkSize];
+                encoder.Encode(inStream, outStream, decBuffer, encBuffer, offsets);
             }
         }
 
@@ -70,7 +74,9 @@ namespace Net.Chdk.Encoders.Binary
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                return decoder.Decode(inStream, outStream, offsets);
+                var encBuffer = new byte[ChunkSize];
+                var decBuffer = new byte[ChunkSize];
+                return decoder.Decode(inStream, outStream, encBuffer, decBuffer, offsets);
             }
         }
 
