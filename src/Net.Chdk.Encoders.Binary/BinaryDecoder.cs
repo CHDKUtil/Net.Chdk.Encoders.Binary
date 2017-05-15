@@ -14,7 +14,7 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        public bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, uint? offsets)
         {
             Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
@@ -25,7 +25,7 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(encStream, decStream, encBuffer, decBuffer, offsets.Value);
         }
 
-        public bool Decode(byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, ulong? offsets)
+        public bool Decode(byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, uint? offsets)
         {
             Validate(encBuffer: encBuffer, decBuffer: decBuffer, offsets: offsets);
 
@@ -36,7 +36,7 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(encBuffer, decBuffer, ulBuffer, offsets.Value);
         }
 
-        private unsafe bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, ulong offsets)
+        private unsafe bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, uint offsets)
         {
             var size = encStream.Read(encBuffer, 0, Prefix.Length);
             if (!ValidatePrefix(encBuffer, size))
@@ -57,7 +57,7 @@ namespace Net.Chdk.Encoders.Binary
             return true;
         }
 
-        private unsafe bool Decode(byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, ulong offsets)
+        private unsafe bool Decode(byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, uint offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = encBuffer.Length;
@@ -80,44 +80,45 @@ namespace Net.Chdk.Encoders.Binary
             return true;
         }
 
-        private unsafe void Decode(byte[] encBuffer, byte[] decBuffer, ulong* pEncBuffer, ulong* pDecBuffer, int start, ulong offsets)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe void Decode(byte[] encBuffer, byte[] decBuffer, ulong* pEncBuffer, ulong* pDecBuffer, int start, uint offsets)
         {
             Marshal.Copy(encBuffer, start, new IntPtr((void*)pEncBuffer), ChunkSize);
-            Decode(pEncBuffer, pDecBuffer, start, offsets);
+            Decode(pEncBuffer, pDecBuffer, offsets);
             Marshal.Copy(new IntPtr((void*)pDecBuffer), decBuffer, start, ChunkSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void Decode(byte[] encBuffer, byte[] decBuffer, ulong* pEncBuffer, ulong* pDecBuffer, int start, int size, ulong offsets)
+        private static unsafe void Decode(byte[] encBuffer, byte[] decBuffer, ulong* pEncBuffer, ulong* pDecBuffer, int start, int size, uint offsets)
         {
             Marshal.Copy(encBuffer, start, new IntPtr((void*)pEncBuffer), size);
-            Decode(pEncBuffer, pDecBuffer, start, size, offsets);
+            Decode(pEncBuffer, pDecBuffer, size, offsets);
             Marshal.Copy(new IntPtr((void*)pDecBuffer), decBuffer, start, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void Decode(ulong* encBuffer, ulong* decBuffer, int start, ulong offsets)
+        private static unsafe void Decode(ulong* encBuffer, ulong* decBuffer, uint offsets)
         {
             for (var disp = 0; disp < ChunkSize / OffsetLength; disp++)
                 DecodeRun(encBuffer, decBuffer, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void Decode(ulong* encBuffer, ulong* decBuffer, int start, int size, ulong offsets)
+        private static unsafe void Decode(ulong* encBuffer, ulong* decBuffer, int size, uint offsets)
         {
             for (var disp = 0; disp < size / OffsetLength; disp++)
                 DecodeRun(encBuffer, decBuffer, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void DecodeRun(ulong* encBuffer, ulong* decBuffer, int disp, ulong offsets)
+        private static unsafe void DecodeRun(ulong* encBuffer, ulong* decBuffer, int disp, uint offsets)
         {
             var enc = encBuffer[disp];
             var dec = 0ul;
             for (var index = 0; index < OffsetLength; index++)
             {
                 var offset = (int)(offsets >> (index << OffsetShift) & (OffsetLength - 1));
-                dec += ((ulong)(Dance((byte)(enc >> (offset << OffsetShift)), (disp << OffsetShift) + index)) << (index << OffsetShift));
+                dec += ((ulong)(Dance((byte)(enc >> (offset << BufferShift)), (disp << BufferShift) + index)) << (index << BufferShift));
             }
             decBuffer[disp] = dec;
         }
