@@ -46,6 +46,20 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentNullException(nameof(decBuffer));
             if (encBuffer == null)
                 throw new ArgumentNullException(nameof(encBuffer));
+            Validate(offsets);
+        }
+
+        private static void Validate(ulong? offsets)
+        {
+            if (offsets == null)
+                return;
+            var value = offsets.Value;
+            for (var i = 0; i < OffsetLength; i++)
+            {
+                if ((byte)value > 7)
+                    throw new ArgumentOutOfRangeException(nameof(offsets));
+                value >>= (1 << OffsetShift);
+            }
         }
 
         protected bool TryCopy(Stream inStream, Stream outStream, int version)
