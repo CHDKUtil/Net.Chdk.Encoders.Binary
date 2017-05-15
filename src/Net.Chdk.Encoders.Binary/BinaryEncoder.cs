@@ -14,16 +14,15 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public void Encode(Stream decStream, Stream encStream, int version)
+        public void Encode(Stream decStream, Stream encStream, ulong? offsets)
         {
-            Validate(encStream: encStream, decStream: decStream, version: version);
+            Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
-            if (TryCopy(decStream, encStream, version))
+            if (TryCopy(decStream, encStream, offsets))
                 return;
 
-            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
-            var offsets = CopyOffsets(version);
-            Encode(decStream, encStream, offsets);
+            Logger.Log(LogLevel.Trace, "Encoding {0} with 0x{1:x}", FileName, offsets);
+            Encode(decStream, encStream, offsets.Value);
         }
 
         public void Encode(byte[] decBuffer, byte[] encBuffer, ulong[] ulBuffer, ulong? offsets)
@@ -37,22 +36,22 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decBuffer, encBuffer, ulBuffer, offsets.Value);
         }
 
-        private unsafe void Encode(Stream decStream, Stream encStream, int[] offsets)
+        private unsafe void Encode(Stream decStream, Stream encStream, ulong offsets)
         {
             var decBuffer = new byte[ChunkSize];
             var encBuffer = new byte[ChunkSize];
-            var ulBuffer = new ulong[ChunkSize / OffsetLength * 2];
 
             encStream.Write(Prefix, 0, Prefix.Length);
 
-            fixed (ulong* pDecBuffer = ulBuffer)
-            fixed (ulong* pEncBuffer = &ulBuffer[ChunkSize / OffsetLength])
+            fixed (byte* pDecBuffer = decBuffer)
+            fixed (byte* pEncBuffer = encBuffer)
             {
-                var uOffsets = GetOffsets(offsets);
+                ulong* uDecBuffer = (ulong*)pDecBuffer;
+                ulong* uEncBuffer = (ulong*)pEncBuffer;
                 int size;
                 while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
                 {
-                    Encode(decBuffer, encBuffer, pDecBuffer, pEncBuffer, 0, size, uOffsets);
+                    Encode(uDecBuffer, uEncBuffer, 0, size, offsets);
                     encStream.Write(encBuffer, 0, size);
                 }
             }
@@ -83,8 +82,7 @@ namespace Net.Chdk.Encoders.Binary
         private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong* pDecBuffer, ulong* pEncBuffer, int start, ulong offsets)
         {
             Marshal.Copy(decBuffer, start, new IntPtr((void*)pDecBuffer), ChunkSize);
-            for (var disp = 0; disp < ChunkSize / OffsetLength; disp++)
-                EncodeRun(pDecBuffer, pEncBuffer, disp, offsets);
+            Encode(pDecBuffer, pEncBuffer, start, offsets);
             Marshal.Copy(new IntPtr((void*)pEncBuffer), encBuffer, start, ChunkSize);
         }
 
@@ -92,9 +90,22 @@ namespace Net.Chdk.Encoders.Binary
         private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong* pDecBuffer, ulong* pEncBuffer, int start, int size, ulong offsets)
         {
             Marshal.Copy(decBuffer, start, new IntPtr((void*)pDecBuffer), size);
+            Encode(pDecBuffer, pEncBuffer, start, size, offsets);
+            Marshal.Copy(new IntPtr((void*)pEncBuffer), encBuffer, start, size);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void Encode(ulong* pDecBuffer, ulong* pEncBuffer, int start, ulong offsets)
+        {
+            for (var disp = 0; disp < ChunkSize / OffsetLength; disp++)
+                EncodeRun(pDecBuffer, pEncBuffer, disp, offsets);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void Encode(ulong* pDecBuffer, ulong* pEncBuffer, int start, int size, ulong offsets)
+        {
             for (var disp = 0; disp < size / OffsetLength; disp++)
                 EncodeRun(pDecBuffer, pEncBuffer, disp, offsets);
-            Marshal.Copy(new IntPtr((void*)pEncBuffer), encBuffer, start, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -24,20 +24,18 @@ namespace Net.Chdk.Encoders.Binary
 
         public int MaxVersion => Offsets.Length;
 
-        protected int[][] Offsets => BootProvider.Offsets;
+        private int[][] Offsets => BootProvider.Offsets;
 
         protected byte[] Prefix => BootProvider.Prefix;
 
         protected string FileName => BootProvider.FileName;
 
-        protected void Validate(Stream decStream, Stream encStream, int version)
+        protected void Validate(Stream decStream, Stream encStream, ulong? offsets)
         {
             if (decStream == null)
                 throw new ArgumentNullException(nameof(decStream));
             if (encStream == null)
                 throw new ArgumentNullException(nameof(encStream));
-            if (version < 0 || version > MaxVersion)
-                throw new ArgumentOutOfRangeException(nameof(version));
         }
 
         protected void Validate(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
@@ -48,9 +46,9 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentNullException(nameof(encBuffer));
         }
 
-        protected bool TryCopy(Stream inStream, Stream outStream, int version)
+        protected bool TryCopy(Stream inStream, Stream outStream, ulong? offsets)
         {
-            if (version == 0)
+            if (offsets == null)
             {
                 Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
                 inStream.CopyTo(outStream);
@@ -68,14 +66,6 @@ namespace Net.Chdk.Encoders.Binary
                 return true;
             }
             return false;
-        }
-
-        protected int[] CopyOffsets(int version)
-        {
-            var offsets = new int[Offsets[version - 1].Length];
-            for (var i = 0; i < Offsets[version - 1].Length; i++)
-                offsets[i] = Offsets[version - 1][i];
-            return offsets;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

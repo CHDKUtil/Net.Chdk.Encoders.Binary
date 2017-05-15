@@ -32,10 +32,11 @@ namespace Net.Chdk.Encoders.Binary
 
             try
             {
+                ulong? offsets = GetOffsets(serviceProvider, version);
                 if (decode.HasValue && decode.Value)
-                    Decode(decoder, inFile, outFile, version.Value);
+                    Decode(decoder, inFile, outFile, offsets);
                 else
-                    Encode(encoder, inFile, outFile, version.Value);
+                    Encode(encoder, inFile, outFile, offsets);
             }
             catch (Exception ex)
             {
@@ -43,21 +44,33 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, int version)
+        private static ulong? GetOffsets(IServiceProvider serviceProvider, int? version)
+        {
+            if (version == null)
+                return null;
+            var bootProvider = serviceProvider.GetService<IBootProvider>();
+            var offsets = bootProvider.Offsets[version.Value - 1];
+            var uOffsets = 0ul;
+            for (var index = 0; index < offsets.Length; index++)
+                uOffsets += (ulong)offsets[index] << (index << 3);
+            return uOffsets;
+        }
+
+        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, ulong? offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                encoder.Encode(inStream, outStream, version);
+                encoder.Encode(inStream, outStream, offsets);
             }
         }
 
-        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, int version)
+        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, ulong? offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                return decoder.Decode(inStream, outStream, version);
+                return decoder.Decode(inStream, outStream, offsets);
             }
         }
 
