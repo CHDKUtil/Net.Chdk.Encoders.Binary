@@ -23,7 +23,7 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(encStream, decStream, Offsets[version - 1]);
         }
 
-        public bool Decode(byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        public bool Decode(byte[] encBuffer, byte[] decBuffer, uint? offsets)
         {
             Validate(encBuffer: encBuffer, decBuffer: decBuffer, offsets: offsets);
 
@@ -53,7 +53,7 @@ namespace Net.Chdk.Encoders.Binary
             return true;
         }
 
-        private bool Decode(byte[] encBuffer, byte[] decBuffer, ulong offsets)
+        private bool Decode(byte[] encBuffer, byte[] decBuffer, uint offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = encBuffer.Length;
@@ -73,21 +73,21 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, ulong offsets)
+        private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, uint offsets)
         {
             for (var disp = 0; disp < ChunkSize; disp += OffsetLength)
                 DecodeRun(encBuffer, decBuffer, start, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, int size, ulong offsets)
+        private static void Decode(byte[] encBuffer, byte[] decBuffer, int start, int size, uint offsets)
         {
             for (var disp = 0; disp < size; disp += OffsetLength)
                 DecodeRun(encBuffer, decBuffer, start, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DecodeRun(byte[] encBuffer, byte[] decBuffer, int start, int disp, ulong offsets)
+        private static void DecodeRun(byte[] encBuffer, byte[] decBuffer, int start, int disp, uint offsets)
         {
             for (var index = 0; index < OffsetLength; index++)
             {
