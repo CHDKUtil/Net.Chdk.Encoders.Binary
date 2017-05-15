@@ -26,7 +26,7 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decStream, encStream, offsets);
         }
 
-        public void Encode(byte[] decBuffer, byte[] encBuffer, ulong[] ulBuffer, ulong? offsets)
+        public void Encode(byte[] decBuffer, byte[] encBuffer, ulong[] ulBuffer, uint? offsets)
         {
             Validate(decBuffer: decBuffer, encBuffer: encBuffer, offsets: offsets);
 
@@ -58,7 +58,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong[] ulBuffer, ulong offsets)
+        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong[] ulBuffer, uint offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = decBuffer.Length;
@@ -80,7 +80,7 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong* pDecBuffer, ulong* pEncBuffer, int start, ulong offsets)
+        private static unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong* pDecBuffer, ulong* pEncBuffer, int start, uint offsets)
         {
             Marshal.Copy(decBuffer, start, new IntPtr((void*)pDecBuffer), ChunkSize);
             for (var disp = 0; disp < ChunkSize / OffsetLength; disp++)
@@ -89,7 +89,7 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong* pDecBuffer, ulong* pEncBuffer, int start, int size, ulong offsets)
+        private static unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong* pDecBuffer, ulong* pEncBuffer, int start, int size, uint offsets)
         {
             Marshal.Copy(decBuffer, start, new IntPtr((void*)pDecBuffer), size);
             for (var disp = 0; disp < size / OffsetLength; disp++)
@@ -98,14 +98,14 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void EncodeRun(ulong* decBuffer, ulong* encBuffer, int disp, ulong offsets)
+        private static unsafe void EncodeRun(ulong* decBuffer, ulong* encBuffer, int disp, uint offsets)
         {
             var dec = decBuffer[disp];
             var enc = 0ul;
             for (var index = 0; index < OffsetLength; index++)
             {
                 var offset = (int)(offsets >> (index << OffsetShift) & (OffsetLength - 1));
-                enc += ((ulong)(Dance((byte)(dec >> (index << OffsetShift)), (disp << OffsetShift) + index)) << (offset << OffsetShift));
+                enc += ((ulong)(Dance((byte)(dec >> (index << BufferShift)), (disp << BufferShift) + index)) << (offset << BufferShift));
             }
             encBuffer[disp] = enc;
         }
