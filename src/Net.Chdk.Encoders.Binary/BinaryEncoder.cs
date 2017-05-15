@@ -24,15 +24,14 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decStream, encStream, offsets);
         }
 
-        public void Encode(byte[] decBuffer, byte[] encBuffer, int version)
+        public void Encode(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
-            Validate(decBuffer: decBuffer, encBuffer: encBuffer, version: version);
+            Validate(decBuffer: decBuffer, encBuffer: encBuffer, offsets: offsets);
 
-            if (TryCopy(decBuffer, encBuffer, version))
+            if (TryCopy(decBuffer, encBuffer, offsets))
                 return;
 
-            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
-            var offsets = CopyOffsets(version);
+            Logger.Log(LogLevel.Trace, "Encoding {0} with 0x{1:x}", FileName, offsets);
             Encode(decBuffer, encBuffer, offsets);
         }
 
@@ -45,18 +44,18 @@ namespace Net.Chdk.Encoders.Binary
 
             fixed (byte* pDecBuffer = decBuffer)
             fixed (byte* pEncBuffer = encBuffer)
-            fixed (int* pOffsets = offsets)
             {
+                var uOffsets = GetOffsets(offsets);
                 int size;
                 while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
                 {
-                    Encode(pDecBuffer, pEncBuffer, 0, size, pOffsets);
+                    Encode(pDecBuffer, pEncBuffer, 0, size, uOffsets);
                     encStream.Write(encBuffer, 0, size);
                 }
             }
         }
 
-        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, int[] offsets)
+        private unsafe void Encode(byte[] decBuffer, byte[] encBuffer, ulong offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = decBuffer.Length;
@@ -66,32 +65,39 @@ namespace Net.Chdk.Encoders.Binary
 
             fixed (byte* pDecBuffer = decBuffer)
             fixed (byte* pEncBuffer = encBuffer)
-            fixed (int* pOffsets = offsets)
             {
-                for (var start = prefixLength; start < bufferLength + ChunkSize; start += ChunkSize)
+                var start = prefixLength;
+                while (start <= bufferLength - ChunkSize)
                 {
-                    if (start <= bufferLength - ChunkSize)
-                        Encode(pDecBuffer, pEncBuffer, start, pOffsets);
-                    else
-                        Encode(pDecBuffer, pEncBuffer, start, bufferLength - start, pOffsets);
+                    Encode(pDecBuffer, pEncBuffer, start, offsets);
+                    start += ChunkSize;
                 }
+                Encode(pDecBuffer, pEncBuffer, start, bufferLength - start, offsets);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Encode(byte* decBuffer, byte* encBuffer, int start, int* offsets)
+        private static unsafe void Encode(byte* decBuffer, byte* encBuffer, int start, ulong offsets)
         {
             for (var disp = 0; disp < ChunkSize; disp += OffsetLength)
-                for (var index = 0; index < OffsetLength; index++)
-                    encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
+                EncodeRun(decBuffer, encBuffer, start, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Encode(byte* decBuffer, byte* encBuffer, int start, int size, int* offsets)
+        private static unsafe void Encode(byte* decBuffer, byte* encBuffer, int start, int size, ulong offsets)
         {
             for (var disp = 0; disp < size; disp += OffsetLength)
-                for (var index = 0; index < OffsetLength; index++)
-                    encBuffer[start + disp + offsets[index]] = Dance(decBuffer[start + disp + index], disp + index);
+                EncodeRun(decBuffer, encBuffer, start, disp, offsets);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe void EncodeRun(byte* decBuffer, byte* encBuffer, int start, int disp, ulong offsets)
+        {
+            for (var index = 0; index < OffsetLength; index++)
+            {
+                var offset = (int)(offsets >> (index << OffsetShift) & (OffsetLength - 1));
+                encBuffer[start + disp + offset] = Dance(decBuffer[start + disp + index], disp + index);
+            }
         }
     }
 }

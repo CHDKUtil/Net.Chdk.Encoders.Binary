@@ -9,6 +9,7 @@ namespace Net.Chdk.Encoders.Binary
     public abstract class BinaryEncoderDecoder
     {
         protected const int OffsetLength = 8;
+        protected const int OffsetShift = 3;
         protected const int ChunkSize = 0x400;
 
         protected ILogger Logger { get; }
@@ -39,16 +40,12 @@ namespace Net.Chdk.Encoders.Binary
                 throw new ArgumentOutOfRangeException(nameof(version));
         }
 
-        protected void Validate(byte[] decBuffer, byte[] encBuffer, int version)
+        protected void Validate(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
             if (decBuffer == null)
                 throw new ArgumentNullException(nameof(decBuffer));
             if (encBuffer == null)
                 throw new ArgumentNullException(nameof(encBuffer));
-            if (version < 0 || version > MaxVersion)
-                throw new ArgumentOutOfRangeException(nameof(version));
-            if (decBuffer.Length != encBuffer.Length)
-                throw new ArgumentException("Mismatching buffer lengths");
         }
 
         protected bool TryCopy(Stream inStream, Stream outStream, int version)
@@ -62,9 +59,9 @@ namespace Net.Chdk.Encoders.Binary
             return false;
         }
 
-        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, int version)
+        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, ulong? offsets)
         {
-            if (version == 0)
+            if (offsets == null)
             {
                 Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
                 Array.Copy(inBuffer, outBuffer, outBuffer.Length);
@@ -79,6 +76,15 @@ namespace Net.Chdk.Encoders.Binary
             for (var i = 0; i < Offsets[version - 1].Length; i++)
                 offsets[i] = Offsets[version - 1][i];
             return offsets;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static ulong GetOffsets(int[] offsets)
+        {
+            var uOffsets = 0ul;
+            for (var index = 0; index < offsets.Length; index++)
+                uOffsets += (ulong)offsets[index] << (index << OffsetShift);
+            return uOffsets;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
