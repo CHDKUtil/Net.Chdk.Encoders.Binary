@@ -30,12 +30,16 @@ namespace Net.Chdk.Encoders.Binary
                 return;
             }
 
+            var encBuffer = new byte[0x400];
+            var decBuffer = new byte[0x400];
+
+            var offsets = GetOffsets(serviceProvider, version);
             try
             {
                 if (decode.HasValue && decode.Value)
-                    Decode(decoder, inFile, outFile, version.Value);
+                    Decode(decoder, inFile, outFile, encBuffer, decBuffer, offsets);
                 else
-                    Encode(encoder, inFile, outFile, version.Value);
+                    Encode(encoder, inFile, outFile, decBuffer, encBuffer, offsets);
             }
             catch (Exception ex)
             {
@@ -43,22 +47,38 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, int version)
+        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                encoder.Encode(inStream, outStream, version);
+                encoder.Encode(inStream, outStream, decBuffer, encBuffer, offsets);
             }
         }
 
-        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, int version)
+        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                return decoder.Decode(inStream, outStream, version);
+                return decoder.Decode(inStream, outStream, encBuffer, decBuffer, offsets);
             }
+        }
+
+        private static ulong? GetOffsets(IServiceProvider serviceProvider, int? version)
+        {
+            if (version.Value == 0)
+                return null;
+            var bootProvider = serviceProvider.GetService<IBootProvider>();
+            return GetOffsets(bootProvider.Offsets[version.Value - 1]);
+        }
+
+        private static ulong GetOffsets(int[] offsets)
+        {
+            var uOffsets = 0ul;
+            for (var index = 0; index < offsets.Length; index++)
+                uOffsets += (ulong)offsets[index] << (index << 3);
+            return uOffsets;
         }
 
         private static bool TryParseArgs(string[] args, IBinaryEncoder encoder, out string inFile, out string outFile, out int? version, out bool? decode)

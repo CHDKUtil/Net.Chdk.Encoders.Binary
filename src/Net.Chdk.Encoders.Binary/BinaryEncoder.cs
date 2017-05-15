@@ -12,15 +12,15 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public void Encode(Stream decStream, Stream encStream, int version)
+        public void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, ulong? offsets)
         {
-            Validate(encStream: encStream, decStream: decStream, version: version);
+            Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
-            if (TryCopy(decStream, encStream, version))
+            if (TryCopy(decStream, encStream, offsets))
                 return;
 
-            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, version);
-            Encode(decStream, encStream, Offsets[version - 1]);
+            Logger.Log(LogLevel.Trace, "Encoding {0} with 0x{1:x}", FileName, offsets);
+            Encode(decStream, encStream, decBuffer, encBuffer, offsets.Value);
         }
 
         public void Encode(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
@@ -34,18 +34,14 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decBuffer, encBuffer, offsets.Value);
         }
 
-        private void Encode(Stream decStream, Stream encStream, int[] offsets)
+        private void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, ulong offsets)
         {
-            var decBuffer = new byte[ChunkSize];
-            var encBuffer = new byte[ChunkSize];
-
             encStream.Write(Prefix, 0, Prefix.Length);
 
-            var uOffsets = GetOffsets(offsets);
             int size;
             while ((size = decStream.Read(decBuffer, 0, ChunkSize)) > 0)
             {
-                Encode(decBuffer, encBuffer, 0, size, uOffsets);
+                Encode(decBuffer, encBuffer, 0, size, offsets);
                 encStream.Write(encBuffer, 0, size);
             }
         }

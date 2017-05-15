@@ -12,15 +12,15 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public bool Decode(Stream encStream, Stream decStream, int version)
+        public bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
-            Validate(encStream: encStream, decStream: decStream, version: version);
+            Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
-            if (TryCopy(encStream, decStream, version))
+            if (TryCopy(encStream, decStream, offsets))
                 return true;
 
-            Logger.Log(LogLevel.Trace, "Decoding {0} version {1}", FileName, version);
-            return Decode(encStream, decStream, Offsets[version - 1]);
+            Logger.Log(LogLevel.Trace, "Decoding {0} with 0x{1:x}", FileName, offsets);
+            return Decode(encStream, decStream, encBuffer, decBuffer, offsets.Value);
         }
 
         public bool Decode(byte[] encBuffer, byte[] decBuffer, ulong? offsets)
@@ -34,20 +34,25 @@ namespace Net.Chdk.Encoders.Binary
             return Decode(encBuffer, decBuffer, offsets.Value);
         }
 
-        private bool Decode(Stream encStream, Stream decStream, int[] offsets)
+        private bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, ulong offsets)
         {
-            var encBuffer = new byte[ChunkSize];
-            var decBuffer = new byte[ChunkSize];
-
             var size = encStream.Read(encBuffer, 0, Prefix.Length);
             if (!ValidatePrefix(encBuffer, size))
                 return false;
 
-            var uOffsets = GetOffsets(offsets);
             while ((size = encStream.Read(encBuffer, 0, ChunkSize)) > 0)
             {
-                Decode(encBuffer, decBuffer, 0, size, uOffsets);
-                decStream.Write(decBuffer, 0, size);
+                if (size == ChunkSize)
+                {
+                    DecodeChunk(encBuffer, decBuffer, offsets);
+                    decStream.Write(decBuffer, 0, ChunkSize);
+                }
+                else
+                {
+                    DecodeChunk(encBuffer, decBuffer, size, offsets);
+                    decStream.Write(decBuffer, 0, size);
+                    return true;
+                }
             }
 
             return true;
@@ -64,12 +69,33 @@ namespace Net.Chdk.Encoders.Binary
             var start = prefixLength;
             while (start <= bufferLength - ChunkSize)
             {
-                Decode(encBuffer, decBuffer, start, offsets);
+                Decode(encBuffer, decBuffer, start, ChunkSize, offsets);
                 start += ChunkSize;
             }
             Decode(encBuffer, decBuffer, start, bufferLength - start, offsets);
 
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DecodeChunk(byte[] encBuffer, byte[] decBuffer, ulong offsets)
+        {
+            for (var index = 0; index < decBuffer.Length; index++)
+                DecodeOne(encBuffer, decBuffer, offsets, index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DecodeChunk(byte[] encBuffer, byte[] decBuffer, int size, ulong offsets)
+        {
+            for (var index = 0; index < (size & ~7); index++)
+                DecodeOne(encBuffer, decBuffer, offsets, index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DecodeOne(byte[] encBuffer, byte[] decBuffer, ulong offsets, int index)
+        {
+            var offset = (int)(offsets >> ((index % 8) << OffsetShift) & (OffsetLength - 1));
+            decBuffer[index] = Dance(encBuffer[(index & ~7) + offset], index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

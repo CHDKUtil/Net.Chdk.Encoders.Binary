@@ -30,14 +30,13 @@ namespace Net.Chdk.Encoders.Binary
 
         protected string FileName => BootProvider.FileName;
 
-        protected void Validate(Stream decStream, Stream encStream, int version)
+        protected void Validate(Stream decStream, Stream encStream, ulong? offsets)
         {
             if (decStream == null)
                 throw new ArgumentNullException(nameof(decStream));
             if (encStream == null)
                 throw new ArgumentNullException(nameof(encStream));
-            if (version < 0 || version > MaxVersion)
-                throw new ArgumentOutOfRangeException(nameof(version));
+            Validate(offsets);
         }
 
         protected void Validate(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
@@ -62,9 +61,9 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        protected bool TryCopy(Stream inStream, Stream outStream, int version)
+        protected bool TryCopy(Stream inStream, Stream outStream, ulong? offsets)
         {
-            if (version == 0)
+            if (offsets == null)
             {
                 Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
                 inStream.CopyTo(outStream);
@@ -82,15 +81,6 @@ namespace Net.Chdk.Encoders.Binary
                 return true;
             }
             return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static ulong GetOffsets(int[] offsets)
-        {
-            var uOffsets = 0ul;
-            for (var index = 0; index < offsets.Length; index++)
-                uOffsets += (ulong)offsets[index] << (index << OffsetShift);
-            return uOffsets;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
