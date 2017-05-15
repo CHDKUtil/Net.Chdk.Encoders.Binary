@@ -30,8 +30,8 @@ namespace Net.Chdk.Encoders.Binary
             if (TryCopy(decBuffer, encBuffer, offsets))
                 return;
 
-            Logger.Log(LogLevel.Trace, "Encoding {0} version {1}", FileName, offsets);
-            Encode(decBuffer, encBuffer, offsets);
+            Logger.Log(LogLevel.Trace, "Encoding {0} with 0x{1:x}", FileName, offsets);
+            Encode(decBuffer, encBuffer, offsets.Value);
         }
 
         private void Encode(Stream decStream, Stream encStream, int[] offsets)
