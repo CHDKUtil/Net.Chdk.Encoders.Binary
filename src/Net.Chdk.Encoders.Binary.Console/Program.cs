@@ -8,6 +8,8 @@ namespace Net.Chdk.Encoders.Binary
 {
     static class Program
     {
+        private const int ChunkSize = 0x400;
+
         static void Main(string[] args)
         {
             var serviceProvider = new ServiceCollection()
@@ -30,8 +32,8 @@ namespace Net.Chdk.Encoders.Binary
                 return;
             }
 
-            var encBuffer = new byte[0x400];
-            var decBuffer = new byte[0x400];
+            var encBuffer = new byte[ChunkSize];
+            var decBuffer = new byte[ChunkSize];
 
             var offsets = GetOffsets(serviceProvider, version);
             try
@@ -47,7 +49,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, byte[] decBuffer, byte[] encBuffer, ulong? offsets)
+        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, byte[] decBuffer, byte[] encBuffer, uint? offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
@@ -56,7 +58,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, byte[] encBuffer, byte[] decBuffer, uint? offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
@@ -65,7 +67,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static ulong? GetOffsets(IServiceProvider serviceProvider, int? version)
+        private static uint? GetOffsets(IServiceProvider serviceProvider, int? version)
         {
             if (version.Value == 0)
                 return null;
@@ -73,11 +75,11 @@ namespace Net.Chdk.Encoders.Binary
             return GetOffsets(bootProvider.Offsets[version.Value - 1]);
         }
 
-        private static ulong GetOffsets(int[] offsets)
+        private static uint GetOffsets(int[] offsets)
         {
-            var uOffsets = 0ul;
+            var uOffsets = 0u;
             for (var index = 0; index < offsets.Length; index++)
-                uOffsets += (ulong)offsets[index] << (index << 3);
+                uOffsets += (uint)offsets[index] << (index << 3);
             return uOffsets;
         }
 

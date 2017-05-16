@@ -9,7 +9,8 @@ namespace Net.Chdk.Encoders.Binary
     public abstract class BinaryEncoderDecoder
     {
         protected const int OffsetLength = 8;
-        protected const int OffsetShift = 3;
+        protected const int OffsetShift = 2;
+        protected const int BufferShift = 3;
         protected const int ChunkSize = 0x400;
 
         protected ILogger Logger { get; }
@@ -24,13 +25,13 @@ namespace Net.Chdk.Encoders.Binary
 
         public int MaxVersion => Offsets.Length;
 
-        protected int[][] Offsets => BootProvider.Offsets;
+        private int[][] Offsets => BootProvider.Offsets;
 
         protected byte[] Prefix => BootProvider.Prefix;
 
         protected string FileName => BootProvider.FileName;
 
-        protected void Validate(Stream decStream, Stream encStream, ulong? offsets)
+        protected void Validate(Stream decStream, Stream encStream, uint? offsets)
         {
             if (decStream == null)
                 throw new ArgumentNullException(nameof(decStream));
@@ -39,7 +40,7 @@ namespace Net.Chdk.Encoders.Binary
             Validate(offsets);
         }
 
-        protected void Validate(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
+        protected void Validate(byte[] decBuffer, byte[] encBuffer, uint? offsets)
         {
             if (decBuffer == null)
                 throw new ArgumentNullException(nameof(decBuffer));
@@ -48,20 +49,20 @@ namespace Net.Chdk.Encoders.Binary
             Validate(offsets);
         }
 
-        private static void Validate(ulong? offsets)
+        private static void Validate(uint? offsets)
         {
             if (offsets == null)
                 return;
             var value = offsets.Value;
             for (var i = 0; i < OffsetLength; i++)
             {
-                if ((byte)value > 7)
+                if ((value & 0x0f) > 7)
                     throw new ArgumentOutOfRangeException(nameof(offsets));
                 value >>= (1 << OffsetShift);
             }
         }
 
-        protected bool TryCopy(Stream inStream, Stream outStream, ulong? offsets)
+        protected bool TryCopy(Stream inStream, Stream outStream, uint? offsets)
         {
             if (offsets == null)
             {
@@ -72,7 +73,7 @@ namespace Net.Chdk.Encoders.Binary
             return false;
         }
 
-        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, ulong? offsets)
+        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, uint? offsets)
         {
             if (offsets == null)
             {

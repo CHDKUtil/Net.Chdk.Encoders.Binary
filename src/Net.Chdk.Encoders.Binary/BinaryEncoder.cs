@@ -1,7 +1,9 @@
 ﻿using Chimp.Logging;
 using Net.Chdk.Providers.Boot;
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -12,7 +14,7 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
-        public void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, ulong? offsets)
+        public void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, uint? offsets)
         {
             Validate(encStream: encStream, decStream: decStream, offsets: offsets);
 
@@ -23,7 +25,7 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decStream, encStream, decBuffer, encBuffer, offsets.Value);
         }
 
-        public void Encode(byte[] decBuffer, byte[] encBuffer, ulong? offsets)
+        public void Encode(byte[] decBuffer, byte[] encBuffer, uint? offsets)
         {
             Validate(decBuffer: decBuffer, encBuffer: encBuffer, offsets: offsets);
 
@@ -34,7 +36,7 @@ namespace Net.Chdk.Encoders.Binary
             Encode(decBuffer, encBuffer, offsets.Value);
         }
 
-        private void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, ulong offsets)
+        private void Encode(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, uint offsets)
         {
             encStream.Write(Prefix, 0, Prefix.Length);
 
@@ -46,7 +48,7 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private void Encode(byte[] decBuffer, byte[] encBuffer, ulong offsets)
+        private void Encode(byte[] decBuffer, byte[] encBuffer, uint offsets)
         {
             var prefixLength = Prefix.Length;
             var bufferLength = decBuffer.Length;
@@ -64,21 +66,21 @@ namespace Net.Chdk.Encoders.Binary
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, ulong offsets)
+        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, uint offsets)
         {
             for (var disp = 0; disp < ChunkSize; disp += OffsetLength)
                 EncodeRun(decBuffer, encBuffer, start, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, ulong offsets)
+        private static void Encode(byte[] decBuffer, byte[] encBuffer, int start, int size, uint offsets)
         {
             for (var disp = 0; disp < size; disp += OffsetLength)
                 EncodeRun(decBuffer, encBuffer, start, disp, offsets);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void EncodeRun(byte[] decBuffer, byte[] encBuffer, int start, int disp, ulong offsets)
+        private static void EncodeRun(byte[] decBuffer, byte[] encBuffer, int start, int disp, uint offsets)
         {
             for (var index = 0; index < OffsetLength; index++)
             {
