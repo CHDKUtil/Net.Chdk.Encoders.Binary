@@ -1,9 +1,7 @@
 ﻿using Chimp.Logging;
 using Net.Chdk.Providers.Boot;
-using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Net.Chdk.Encoders.Binary
 {
