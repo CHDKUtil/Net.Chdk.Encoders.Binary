@@ -42,17 +42,8 @@ namespace Net.Chdk.Encoders.Binary
 
             while ((size = encStream.Read(encBuffer, 0, ChunkSize)) > 0)
             {
-                if (size == ChunkSize)
-                {
-                    DecodeChunk(encBuffer, decBuffer, offsets);
-                    decStream.Write(decBuffer, 0, ChunkSize);
-                }
-                else
-                {
-                    DecodeChunk(encBuffer, decBuffer, size, offsets);
-                    decStream.Write(decBuffer, 0, size);
-                    return true;
-                }
+                DecodeChunk(encBuffer, decBuffer, offsets);
+                decStream.Write(decBuffer, 0, size);
             }
 
             return true;
@@ -69,7 +60,7 @@ namespace Net.Chdk.Encoders.Binary
             var start = prefixLength;
             while (start <= bufferLength - ChunkSize)
             {
-                Decode(encBuffer, decBuffer, start, ChunkSize, offsets);
+                Decode(encBuffer, decBuffer, start, offsets);
                 start += ChunkSize;
             }
             Decode(encBuffer, decBuffer, start, bufferLength - start, offsets);
@@ -81,21 +72,10 @@ namespace Net.Chdk.Encoders.Binary
         private static void DecodeChunk(byte[] encBuffer, byte[] decBuffer, uint offsets)
         {
             for (var index = 0; index < decBuffer.Length; index++)
-                DecodeOne(encBuffer, decBuffer, offsets, index);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DecodeChunk(byte[] encBuffer, byte[] decBuffer, int size, uint offsets)
-        {
-            for (var index = 0; index < (size & ~7); index++)
-                DecodeOne(encBuffer, decBuffer, offsets, index);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DecodeOne(byte[] encBuffer, byte[] decBuffer, uint offsets, int index)
-        {
-            var offset = (int)(offsets >> ((index % 8) << OffsetShift) & (OffsetLength - 1));
-            decBuffer[index] = Dance(encBuffer[(index & ~7) + offset], index);
+            {
+                var offset = (int)(offsets >> ((index % 8) << OffsetShift) & (OffsetLength - 1));
+                decBuffer[index] = Dance(encBuffer[(index & ~7) + offset], index);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
