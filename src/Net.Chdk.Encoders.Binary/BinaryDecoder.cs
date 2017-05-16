@@ -12,6 +12,16 @@ namespace Net.Chdk.Encoders.Binary
         {
         }
 
+        public bool ValidatePrefix(byte[] encBuffer, int size)
+        {
+            if (size < Prefix.Length)
+                return false;
+            for (var i = 0; i < Prefix.Length; i++)
+                if (encBuffer[i] != Prefix[i])
+                    return false;
+            return true;
+        }
+
         public bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, uint? offsets)
         {
             Validate(encStream: encStream, decStream: decStream, offsets: offsets);
@@ -100,17 +110,6 @@ namespace Net.Chdk.Encoders.Binary
                 var offset = (int)(offsets >> (index << OffsetShift) & (OffsetLength - 1));
                 decBuffer[start + disp + index] = Dance(encBuffer[start + disp + offset], disp + index);
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool ValidatePrefix(byte[] encBuffer, int size)
-        {
-            if (size < Prefix.Length)
-                return false;
-            for (var i = 0; i < Prefix.Length; i++)
-                if (encBuffer[i] != Prefix[i])
-                    return false;
-            return true;
         }
     }
 }
