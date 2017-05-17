@@ -83,8 +83,8 @@ namespace Net.Chdk.Encoders.Binary
         {
             for (var index = 0; index < decBuffer.Length; index++)
             {
-                var offset = (int)(offsets >> ((index % 8) << OffsetShift) & (OffsetLength - 1));
-                decBuffer[index] = Dance(encBuffer[(index & ~7) + offset], index);
+                var offset = (int)(offsets >> ((index % OffsetLength) << OffsetShift) & (OffsetLength - 1));
+                decBuffer[index] = Dance(encBuffer[(index & ~(OffsetLength - 1)) + offset], index);
             }
         }
 
