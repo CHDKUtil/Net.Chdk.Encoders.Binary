@@ -29,17 +29,12 @@ namespace Net.Chdk.Encoders.Binary
 
         protected string FileName => BootProvider.FileName;
 
-        protected void Validate(Stream decStream, Stream encStream, uint? offsets)
+        protected void Validate(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, uint? offsets)
         {
             if (decStream == null)
                 throw new ArgumentNullException(nameof(decStream));
             if (encStream == null)
                 throw new ArgumentNullException(nameof(encStream));
-            Validate(offsets);
-        }
-
-        protected void Validate(byte[] decBuffer, byte[] encBuffer, uint? offsets)
-        {
             if (decBuffer == null)
                 throw new ArgumentNullException(nameof(decBuffer));
             if (encBuffer == null)
@@ -66,17 +61,6 @@ namespace Net.Chdk.Encoders.Binary
             {
                 Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
                 inStream.CopyTo(outStream);
-                return true;
-            }
-            return false;
-        }
-
-        protected bool TryCopy(byte[] inBuffer, byte[] outBuffer, uint? offsets)
-        {
-            if (offsets == null)
-            {
-                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
-                Array.Copy(inBuffer, outBuffer, outBuffer.Length);
                 return true;
             }
             return false;
