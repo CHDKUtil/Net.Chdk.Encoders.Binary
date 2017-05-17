@@ -8,10 +8,8 @@ namespace Net.Chdk.Encoders.Binary
 {
     public abstract class BinaryEncoderDecoder
     {
-        protected const int OffsetLength = 8;
-        protected const int OffsetShift = 2;
-        protected const int BufferShift = 3;
-        protected const int ChunkSize = 0x400;
+        private const int OffsetLength = 8;
+        private const int OffsetShift = 2;
 
         protected ILogger Logger { get; }
 

@@ -7,6 +7,10 @@ namespace Net.Chdk.Encoders.Binary
 {
     public sealed class BinaryEncoder : BinaryEncoderDecoder, IBinaryEncoder
     {
+        private const int OffsetLength = 8;
+        private const int OffsetShift = 2;
+        private const int ChunkSize = 0x400;
+
         public BinaryEncoder(IBootProvider bootProvider, ILoggerFactory loggerFactory)
             : base(bootProvider, loggerFactory.CreateLogger<BinaryEncoder>())
         {
