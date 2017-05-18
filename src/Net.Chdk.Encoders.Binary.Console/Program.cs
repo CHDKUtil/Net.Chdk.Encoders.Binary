@@ -79,7 +79,7 @@ namespace Net.Chdk.Encoders.Binary
         {
             var uOffsets = 0u;
             for (var index = 0; index < offsets.Length; index++)
-                uOffsets += (uint)offsets[index] << (index << 3);
+                uOffsets += (uint)offsets[index] << (index << 2);
             return uOffsets;
         }
 
