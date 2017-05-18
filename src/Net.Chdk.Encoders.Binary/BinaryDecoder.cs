@@ -1,7 +1,5 @@
 ﻿using Chimp.Logging;
 using Net.Chdk.Providers.Boot;
-using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -27,39 +25,16 @@ namespace Net.Chdk.Encoders.Binary
             return true;
         }
 
-        public bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, uint? offsets)
+        public void Decode(byte[] encBuffer, byte[] decBuffer, uint offsets)
         {
-            Validate(encStream: encStream, decStream: decStream, encBuffer: encBuffer, decBuffer: decBuffer, offsets: offsets);
-
-            if (TryCopy(encStream, decStream, offsets))
-                return true;
+            Validate(encBuffer: encBuffer, decBuffer: decBuffer, offsets: offsets);
 
             Logger.Log(LogLevel.Trace, "Decoding {0} with 0x{1:x}", FileName, offsets);
-            return Decode(encStream, decStream, encBuffer, decBuffer, offsets.Value);
-        }
 
-        private bool Decode(Stream encStream, Stream decStream, byte[] encBuffer, byte[] decBuffer, uint offsets)
-        {
-            var size = encStream.Read(encBuffer, 0, Prefix.Length);
-            if (!ValidatePrefix(encBuffer, size))
-                return false;
-
-            while ((size = encStream.Read(encBuffer, 0, ChunkSize)) > 0)
-            {
-                DecodeChunk(encBuffer, decBuffer, offsets);
-                decStream.Write(decBuffer, 0, size);
-            }
-
-            return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DecodeChunk(byte[] encBuffer, byte[] decBuffer, uint offsets)
-        {
             for (var index = 0; index < decBuffer.Length; index++)
             {
                 var offset = (int)(offsets >> ((index % OffsetLength) << OffsetShift) & (OffsetLength - 1));
-                decBuffer[index] = Dance(encBuffer[(index & ~(OffsetLength - 1)) + offset], index);
+                decBuffer[index] = Dance(encBuffer[(index & ~(OffsetLength - 1)) + offset], index % ChunkSize);
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using Chimp.Logging;
 using Net.Chdk.Providers.Boot;
 using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace Net.Chdk.Encoders.Binary
@@ -29,12 +28,8 @@ namespace Net.Chdk.Encoders.Binary
 
         protected string FileName => BootProvider.FileName;
 
-        protected void Validate(Stream decStream, Stream encStream, byte[] decBuffer, byte[] encBuffer, uint? offsets)
+        protected static void Validate(byte[] decBuffer, byte[] encBuffer, uint offsets)
         {
-            if (decStream == null)
-                throw new ArgumentNullException(nameof(decStream));
-            if (encStream == null)
-                throw new ArgumentNullException(nameof(encStream));
             if (decBuffer == null)
                 throw new ArgumentNullException(nameof(decBuffer));
             if (encBuffer == null)
@@ -53,17 +48,6 @@ namespace Net.Chdk.Encoders.Binary
                     throw new ArgumentOutOfRangeException(nameof(offsets));
                 value >>= (1 << OffsetShift);
             }
-        }
-
-        protected bool TryCopy(Stream inStream, Stream outStream, uint? offsets)
-        {
-            if (offsets == null)
-            {
-                Logger.Log(LogLevel.Trace, "Copying {0} contents", FileName);
-                inStream.CopyTo(outStream);
-                return true;
-            }
-            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
