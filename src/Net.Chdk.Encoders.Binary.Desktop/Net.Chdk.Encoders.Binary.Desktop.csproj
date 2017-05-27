@@ -80,10 +80,6 @@
       <Project>{5e2fdedb-20fa-401d-ad6b-38088bb14d3a}</Project>
       <Name>Net.Chdk.Encoders.Binary.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj">
-      <Project>{4e4fa15a-4a88-4caf-a8e1-fc507177ead4}</Project>
-      <Name>Net.Chdk.Providers.Boot.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

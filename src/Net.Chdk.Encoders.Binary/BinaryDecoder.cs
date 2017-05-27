@@ -1,5 +1,4 @@
 ﻿using Chimp.Logging;
-using Net.Chdk.Providers.Boot;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -7,20 +6,19 @@ namespace Net.Chdk.Encoders.Binary
     {
         private const int OffsetLength = 8;
         private const int OffsetShift = 2;
-        private const int BufferShift = 3;
         private const int ChunkSize = 0x400;
 
-        public BinaryDecoder(IBootProvider bootProvider, ILoggerFactory loggerFactory)
-            : base(bootProvider, loggerFactory.CreateLogger<BinaryDecoder>())
+        public BinaryDecoder(ILoggerFactory loggerFactory)
+            : base(loggerFactory.CreateLogger<BinaryDecoder>())
         {
         }
 
-        public bool ValidatePrefix(byte[] encBuffer, int size)
+        public bool ValidatePrefix(byte[] encBuffer, int size, byte[] prefix)
         {
-            if (size < Prefix.Length)
+            if (prefix == null || size < prefix.Length)
                 return false;
-            for (var i = 0; i < Prefix.Length; i++)
-                if (encBuffer[i] != Prefix[i])
+            for (var i = 0; i < prefix.Length; i++)
+                if (encBuffer[i] != prefix[i])
                     return false;
             return true;
         }

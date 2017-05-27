@@ -1,5 +1,4 @@
 ﻿using Chimp.Logging;
-using Net.Chdk.Providers.Boot;
 
 namespace Net.Chdk.Encoders.Binary
 {
@@ -9,8 +8,8 @@ namespace Net.Chdk.Encoders.Binary
         private const int OffsetShift = 2;
         private const int ChunkSize = 0x400;
 
-        public BinaryEncoder(IBootProvider bootProvider, ILoggerFactory loggerFactory)
-            : base(bootProvider, loggerFactory.CreateLogger<BinaryEncoder>())
+        public BinaryEncoder(ILoggerFactory loggerFactory)
+            : base(loggerFactory.CreateLogger<BinaryEncoder>())
         {
         }
 

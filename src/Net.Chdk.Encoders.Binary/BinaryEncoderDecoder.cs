@@ -1,5 +1,4 @@
 ﻿using Chimp.Logging;
-using Net.Chdk.Providers.Boot;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -12,21 +11,12 @@ namespace Net.Chdk.Encoders.Binary
 
         protected ILogger Logger { get; }
 
-        private IBootProvider BootProvider { get; }
-
-        public BinaryEncoderDecoder(IBootProvider bootProvider, ILogger logger)
+        public BinaryEncoderDecoder(ILogger logger)
         {
-            BootProvider = bootProvider;
             Logger = logger;
         }
 
-        public int MaxVersion => Offsets.Length;
-
-        private int[][] Offsets => BootProvider.Offsets;
-
-        protected byte[] Prefix => BootProvider.Prefix;
-
-        protected string FileName => BootProvider.FileName;
+        protected const string FileName = "DISKBOOT.BIN";
 
         protected static void Validate(byte[] decBuffer, byte[] encBuffer, uint offsets)
         {
