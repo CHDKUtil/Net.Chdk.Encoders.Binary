@@ -56,8 +56,17 @@
       <HintPath>..\Net.Chdk.Encoders.Binary\packages\Chimp.Logging.Core.0.2.0-alpha\lib\net45\Chimp.Logging.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\Net.Chdk.Encoders.Binary\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.1\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\Net.Chdk.Encoders.Binary\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -74,6 +83,9 @@
     </Compile>
     <Compile Include="..\Net.Chdk.Encoders.Binary\BinaryEncoderDecoder.cs">
       <Link>BinaryEncoderDecoder.cs</Link>
+    </Compile>
+    <Compile Include="..\Net.Chdk.Encoders.Binary\ServiceCollectionExtensions.cs">
+      <Link>ServiceCollectionExtensions.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

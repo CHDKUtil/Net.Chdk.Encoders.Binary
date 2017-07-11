@@ -67,11 +67,15 @@
     <Compile Include="BinaryEncoder.cs" />
     <Compile Include="BinaryEncoderDecoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceCollectionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Chimp.Logging.Core, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Chimp.Logging.Core.0.2.0-alpha\lib\portable-net45+win8+wpa81+wp8\Chimp.Logging.Core.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.1\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
