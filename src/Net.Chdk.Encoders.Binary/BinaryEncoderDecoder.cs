@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Net.Chdk.Encoders.Binary
 {
-    public abstract class BinaryEncoderDecoder
+    abstract class BinaryEncoderDecoder
     {
         private const int OffsetLength = 8;
         private const int OffsetShift = 2;

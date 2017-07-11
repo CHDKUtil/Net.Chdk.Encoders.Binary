@@ -2,7 +2,7 @@
 
 namespace Net.Chdk.Encoders.Binary
 {
-    public sealed class BinaryDecoder : BinaryEncoderDecoder, IBinaryDecoder
+    sealed class BinaryDecoder : BinaryEncoderDecoder, IBinaryDecoder
     {
         private const int OffsetLength = 8;
         private const int OffsetShift = 2;
