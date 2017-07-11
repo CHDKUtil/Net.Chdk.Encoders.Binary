@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.Binary", "Net.Chdk.Encoders.Binary.csproj", "{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}"
 EndProject
@@ -9,7 +9,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Net.Chdk.Shared", "..\..\..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.Binary.Console", "..\Net.Chdk.Encoders.Binary.Console\Net.Chdk.Encoders.Binary.Console.csproj", "{AB0A4ADD-4505-4BAC-9685-DF336849E4E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.Binary.Core", "..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj", "{5E2FDEDB-20FA-401D-AD6B-38088BB14D3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Net.Chdk.Encoders.Binary.Core", "..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj", "{5E2FDEDB-20FA-401D-AD6B-38088BB14D3A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Providers.Boot.Core", "..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj", "{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}"
 EndProject
@@ -23,14 +23,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Json", "..\..\..\N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Providers.Category.Core", "..\..\..\Net.Chdk.Providers.Category.Core\src\Net.Chdk.Providers.Category.Core\Net.Chdk.Providers.Category.Core.csproj", "{05B4FC36-AB60-48A6-A12C-0D8BB73843DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Providers.Base", "..\..\..\Net.Chdk.Providers.Base\src\Net.Chdk.Providers.Base\Net.Chdk.Providers.Base.csproj", "{3E5DF136-E7C5-4ACA-B065-3E6E36217645}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Model.Category", "..\..\..\Net.Chdk.Model.Category\src\Net.Chdk.Model.Category\Net.Chdk.Model.Category.csproj", "{732DF01F-2379-4244-ABA1-48BA99EA1883}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{0396213c-0a79-44d3-80cf-93ef10f3d331}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{05b4fc36-ab60-48a6-a12c-0d8bb73843dd}*SharedItemsImports = 4
+		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{3e5df136-e7c5-4aca-b065-3e6e36217645}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{4e4fa15a-4a88-4caf-a8e1-fc507177ead4}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{5e2fdedb-20fa-401d-ad6b-38088bb14d3a}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{62da1e42-36a6-4fa5-8439-6634d47fdbf3}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{6c183a9c-30c1-47e5-9016-48890ec8aba2}*SharedItemsImports = 4
+		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{732df01f-2379-4244-aba1-48ba99ea1883}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{83c6a77c-3286-4f5f-b628-3b971097ad05}*SharedItemsImports = 13
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{ab0a4add-4505-4bac-9685-df336849e4e6}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{bc3c0d74-5a68-4791-be4b-8b2bc724c0ec}*SharedItemsImports = 4
@@ -77,6 +83,14 @@ Global
 		{05B4FC36-AB60-48A6-A12C-0D8BB73843DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05B4FC36-AB60-48A6-A12C-0D8BB73843DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05B4FC36-AB60-48A6-A12C-0D8BB73843DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E5DF136-E7C5-4ACA-B065-3E6E36217645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E5DF136-E7C5-4ACA-B065-3E6E36217645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E5DF136-E7C5-4ACA-B065-3E6E36217645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E5DF136-E7C5-4ACA-B065-3E6E36217645}.Release|Any CPU.Build.0 = Release|Any CPU
+		{732DF01F-2379-4244-ABA1-48BA99EA1883}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{732DF01F-2379-4244-ABA1-48BA99EA1883}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{732DF01F-2379-4244-ABA1-48BA99EA1883}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{732DF01F-2379-4244-ABA1-48BA99EA1883}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
