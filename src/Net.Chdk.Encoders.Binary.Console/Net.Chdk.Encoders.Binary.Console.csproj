@@ -68,6 +68,9 @@
       <HintPath>..\Net.Chdk.Encoders.Binary\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.1\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Net.Chdk.Encoders.Binary.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Net.Chdk.Encoders.Binary\packages\Net.Chdk.Encoders.Binary.Core.0.1.0-alpha\lib\netstandard1.0\Net.Chdk.Encoders.Binary.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -96,10 +99,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj">
-      <Project>{5E2FDEDB-20FA-401D-AD6B-38088BB14D3A}</Project>
-      <Name>Net.Chdk.Encoders.Binary.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj">
       <Project>{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}</Project>
       <Name>Net.Chdk.Providers.Boot.Core</Name>
