@@ -14,8 +14,8 @@ namespace Net.Chdk.Encoders.Binary
         {
             var serviceProvider = new ServiceCollection()
                 .AddBootProvider()
-                .AddSingleton<IBinaryEncoder, BinaryEncoder>()
-                .AddSingleton<IBinaryDecoder, BinaryDecoder>()
+                .AddBinaryEncoder()
+                .AddBinaryDecoder()
                 .AddSingleton<ILoggerFactory>(NoOpLoggerFactory.Instance)
                 .BuildServiceProvider();
 
@@ -49,30 +49,29 @@ namespace Net.Chdk.Encoders.Binary
             }
         }
 
-        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, byte[] decBuffer, byte[] encBuffer, uint? offsets)
+        private static void Encode(IBinaryEncoder encoder, string inFile, string outFile, byte[] decBuffer, byte[] encBuffer, uint offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                encoder.Encode(inStream, outStream, decBuffer, encBuffer, offsets);
+                encoder.Encode(decBuffer, encBuffer, offsets);
             }
         }
 
-        private static bool Decode(IBinaryDecoder decoder, string inFile, string outFile, byte[] encBuffer, byte[] decBuffer, uint? offsets)
+        private static void Decode(IBinaryDecoder decoder, string inFile, string outFile, byte[] encBuffer, byte[] decBuffer, uint offsets)
         {
             using (var inStream = File.OpenRead(inFile))
             using (var outStream = File.OpenWrite(outFile))
             {
-                return decoder.Decode(inStream, outStream, encBuffer, decBuffer, offsets);
+                decoder.Decode(encBuffer, decBuffer, offsets);
             }
         }
 
-        private static uint? GetOffsets(IServiceProvider serviceProvider, int? version)
+        private static uint GetOffsets(IServiceProvider serviceProvider, int? version)
         {
-            if (version.Value == 0)
-                return null;
             var bootProvider = serviceProvider.GetService<IBootProvider>();
-            return GetOffsets(bootProvider.Offsets[version.Value - 1]);
+            var offsets = bootProvider.GetOffsets("PS");
+            return GetOffsets(offsets[version.Value - 1]);
         }
 
         private static uint GetOffsets(int[] offsets)
@@ -139,7 +138,7 @@ namespace Net.Chdk.Encoders.Binary
                 return false;
 
             int tempVer;
-            if (!int.TryParse(arg, out tempVer) || tempVer < 0 || tempVer > encoder.MaxVersion)
+            if (!int.TryParse(arg, out tempVer) || tempVer < 1)
                 return false;
 
             version = tempVer;
